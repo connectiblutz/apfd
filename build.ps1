@@ -39,7 +39,7 @@ function setup {
   }
   cd _builds/$arch/$config
   $env:VSCMD_ARG_TGT_ARCH=$arch
-  cmake ..\..\.. -GNinja -DCMAKE_BUILD_TYPE=config -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+  cmake ..\..\.. -GNinja -DCMAKE_BUILD_TYPE="$config" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
   CheckLastExitCode 0
   cd ..\..\..
 }
@@ -66,18 +66,18 @@ try {
 
   if ($x64) {
     if ($release) {
-      fullArchSteps "x64" "release"
+      fullArchSteps "x64" "Release"
     }
     if ($debug) {
-      fullArchSteps "x64" "debug"
+      fullArchSteps "x64" "Debug"
     }
   }
   if ($x86) {
     if ($release) {
-      fullArchSteps "x86" "release"
+      fullArchSteps "x86" "Release"
     }
     if ($debug) {
-      fullArchSteps "x86" "debug"
+      fullArchSteps "x86" "Debug"
     }
   }
 

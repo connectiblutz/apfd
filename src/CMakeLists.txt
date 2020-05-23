@@ -18,9 +18,3 @@ target_compile_options(apfd PRIVATE
  -Wall
  -Wextra
 )
-
-if (WIN32)
-  target_link_libraries(apfd
-    libcmt.lib
-  )
-endif()
