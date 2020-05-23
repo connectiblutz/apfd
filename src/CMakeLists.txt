@@ -6,6 +6,8 @@ add_executable(apfd
   run.h
   install.cc
   install.h
+  messagethread.cc
+  messagethread.h
 )
 
 target_link_libraries(apfd
@@ -14,8 +16,7 @@ target_link_libraries(apfd
 target_compile_options(apfd PRIVATE
  -Werror
  -Wall
- -Weverything
- -Wno-reserved-id-macro
+ -Wextra
 )
 
 if (WIN32)
