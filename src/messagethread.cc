@@ -15,7 +15,13 @@ MessageThread::~MessageThread() {
 
 void MessageThread::post(Message message) {
   std::unique_lock<std::mutex> lk(messageQueueMutex);
-  messageQueue.push(message);
+  messageQueue.push(StoredMessage(message));
+  messageQueueConditionVariable.notify_one();
+}
+void MessageThread::postDelayed(Message message, std::chrono::milliseconds delay) {
+  auto now = std::chrono::steady_clock::now();
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
+  messageQueue.push(StoredMessage(message, now+delay));
   messageQueueConditionVariable.notify_one();
 }
 
@@ -32,14 +38,27 @@ void MessageThread::OnMessage(Message message) {
 }
 
 void MessageThread::messageLoop() {
+  std::chrono::steady_clock::time_point until(std::chrono::steady_clock::time_point::max());
   while (true) {
     std::unique_lock<std::mutex> lk(messageQueueMutex);
-    messageQueueConditionVariable.wait(lk,[this]{ return messageQueue.size()>0; });
-    while (messageQueue.size()>0) {
-      Message message = messageQueue.front();
+    if (until!= std::chrono::steady_clock::time_point::max()) {
+      messageQueueConditionVariable.wait_until(lk,until);
+    } else {
+      messageQueueConditionVariable.wait(lk);
+    }
+    while (!messageQueue.empty()) {
+      StoredMessage storedMessage = messageQueue.top();
+      if (!storedMessage.isImmediate) {
+        auto now = std::chrono::steady_clock::now();
+        if (now < storedMessage.deliveryTime) {
+          until=storedMessage.deliveryTime;
+          break;
+        }
+      }
+      until=std::chrono::steady_clock::time_point::max();
       messageQueue.pop();
-      if (message.code()==MessageThread::MSG_STOP) return;
-      OnMessage(message);
+      if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
+      OnMessage(storedMessage.message);
     }
   }
 }
