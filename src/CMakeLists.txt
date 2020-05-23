@@ -6,11 +6,10 @@ add_executable(apfd
   run.h
   install.cc
   install.h
-  messagethread.cc
-  messagethread.h
 )
 
 target_link_libraries(apfd
+  common
   cJSON
 )
 target_compile_options(apfd PRIVATE
