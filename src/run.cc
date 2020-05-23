@@ -56,7 +56,6 @@ VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv)
 	}
 
 	std::thread mainThread(runAsApp);
-	mainThread.detach();
 
 	if (!ReportStatusToSCMgr(SERVICE_RUNNING, NO_ERROR, 0))
 	{
