@@ -3,13 +3,19 @@
 
 #include <windows.h>
 
-MessageThread* runnerThread = nullptr;
+#define UNUSED(x) (void)(x)
 
 SERVICE_STATUS          ssStatus;       // current status of the service
 SERVICE_STATUS_HANDLE   sshStatusHandle;
 DWORD dwErr = 0;
 
-#define UNUSED(x) (void)(x)
+MessageThread* runnerThread = nullptr;
+
+int runCombined() {
+  runnerThread = new MessageThread();
+  runnerThread->join();
+  return 0;
+}
 
 BOOL ReportStatusToSCMgr(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWaitHint)
 {
@@ -55,7 +61,7 @@ VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv)
 		return;
 	}
 
-	std::thread mainThread(runAsApp);
+	std::thread mainThread(runCombined);
 
 	if (!ReportStatusToSCMgr(SERVICE_RUNNING, NO_ERROR, 0))
 	{
@@ -135,11 +141,27 @@ cleanup:
 	return;
 }
 
-
+BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
+{
+  switch (fdwCtrlType)
+  {
+    // Handle the CTRL-C signal.
+    case CTRL_C_EVENT:
+    {
+	   if (runnerThread) runnerThread->stop();
+     return TRUE;
+    }
+    case CTRL_CLOSE_EVENT:
+    case CTRL_BREAK_EVENT:
+    case CTRL_LOGOFF_EVENT:
+    case CTRL_SHUTDOWN_EVENT:
+    default:
+      return FALSE;
+  }
+}
 int runAsApp() {
-  runnerThread = new MessageThread();
-  runnerThread->join();
-  return 0;
+  SetConsoleCtrlHandler(CtrlHandler, TRUE);
+  return runCombined();
 }
 
 int runAsDaemon() {
