@@ -14,7 +14,9 @@ MessageThread::~MessageThread() {
 }
 
 void MessageThread::post(uint16_t message) {
-  UNUSED(message);
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
+  messageQueue.push(message);
+  messageQueueConditionVariable.notify_one();
 }
 
 void MessageThread::stop() {
@@ -30,5 +32,14 @@ void MessageThread::OnMessage(uint16_t message) {
 }
 
 void MessageThread::messageLoop() {
-
+  while (true) {
+    std::unique_lock<std::mutex> lk(messageQueueMutex);
+    messageQueueConditionVariable.wait(lk,[this]{ return messageQueue.size()>0; });
+    while (messageQueue.size()>0) {
+      uint16_t message = messageQueue.front();
+      messageQueue.pop();
+      if (message==MessageThread::MSG_STOP) return;
+      OnMessage(message);
+    }
+  }
 }
