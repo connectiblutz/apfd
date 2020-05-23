@@ -5,6 +5,10 @@ add_executable(apfd
   main.cc
 )
 
+target_link_libraries(apfd
+  cJSON
+)
+
 if (WIN32)
   target_link_libraries(apfd
     libcmt.lib

@@ -25,14 +25,14 @@ Import-Module -Force $PSScriptRoot\common.psm1
 function clean {
   Param($arch, $config)
 
-  echo "Cleaning up $arch $config ..."
+  echo "Cleaning up $arch $config..."
 
   removeFolder _builds/$arch/$config
 }
 function setup {
   Param($arch, $config)
 
-  echo "Setting up $arch $config ..."
+  echo "Setting up $arch $config..."
 
   if (-Not (folderExists _builds/$arch/$config)) {
     createFolder _builds/$arch/$config
@@ -46,7 +46,7 @@ function setup {
 function build {
   Param($arch, $config)
 
-  echo "Building $arch $config ..."
+  echo "Building $arch $config..."
 
   $env:VSCMD_ARG_TGT_ARCH=$arch
   ninja -C _builds/$arch/$config
