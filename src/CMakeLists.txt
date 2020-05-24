@@ -6,6 +6,8 @@ add_executable(apfd
   run.h
   install.cc
   install.h
+  apfdworker.cc
+  apfdworker.h
 )
 
 target_link_libraries(apfd

@@ -1,7 +1,5 @@
 #include "messagethread.h"
 
-#define UNUSED(x) (void)(x)
-
 namespace apfd::common {
 
 const uint16_t MessageThread::MSG_STOP = 0xFFFF;
@@ -35,10 +33,6 @@ void MessageThread::join() {
   static std::mutex joinMutex;
   std::lock_guard lock(joinMutex);
   if (t.joinable()) t.join();
-}
-
-void MessageThread::OnMessage(Message message) {
-  UNUSED(message);
 }
 
 void MessageThread::messageLoop() {

@@ -22,12 +22,12 @@ class MessageThread {
     };
   public:
     MessageThread();
-    ~MessageThread();
+    virtual ~MessageThread();
     void post(Message message);
     void postDelayed(Message message, std::chrono::milliseconds delay);
     void stop();
     void join();
-    void OnMessage(Message message);
+    virtual void OnMessage(Message message) = 0;
   private:
     class StoredMessage {
       public:
