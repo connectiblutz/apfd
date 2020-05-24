@@ -7,6 +7,8 @@
 #include <chrono>
 #include <vector>
 
+namespace apfd::common {
+
 class MessageThread {
   public:
     class Message {
@@ -53,3 +55,5 @@ class MessageThread {
     std::condition_variable messageQueueConditionVariable;
     std::priority_queue<StoredMessage, std::vector<StoredMessage>, StoredMessageCompare> messageQueue;
 };
+
+}
