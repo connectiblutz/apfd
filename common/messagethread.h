@@ -27,6 +27,7 @@ class MessageThread {
     void postDelayed(Message message, std::chrono::milliseconds delay);
     void stop();
     void join();
+  protected:
     virtual void OnMessage(Message message) = 0;
   private:
     class StoredMessage {

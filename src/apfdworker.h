@@ -5,8 +5,12 @@
 namespace apfd {
 
 class ApfdWorker : public common::MessageThread {
-    public:
-        void OnMessage(common::MessageThread::Message message);
+  public:
+   ApfdWorker();
+  protected:
+    void OnMessage(common::MessageThread::Message message);
+  private:
+    static const uint16_t MSG_READCONFIG; 
 };
 
 }
