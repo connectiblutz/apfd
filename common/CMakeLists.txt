@@ -7,6 +7,10 @@ add_library(common
   windowsservice.h
   consolehandler.cc
   consolehandler.h
+  fileutil.cc
+  fileutil.h
+  logutil.cc
+  logutil.h
 )
 
 target_include_directories(common PUBLIC

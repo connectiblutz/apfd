@@ -1,4 +1,5 @@
 #include "messagethread.h"
+#include "logutil.h"
 
 namespace apfd::common {
 
@@ -39,10 +40,12 @@ void MessageThread::messageLoop() {
   std::chrono::steady_clock::time_point until(std::chrono::steady_clock::time_point::max());
   while (true) {
     std::unique_lock<std::mutex> lk(messageQueueMutex);
-    if (until!= std::chrono::steady_clock::time_point::max()) {
-      messageQueueConditionVariable.wait_until(lk,until);
-    } else {
-      messageQueueConditionVariable.wait(lk);
+    if (messageQueue.empty()) {
+      if (until!= std::chrono::steady_clock::time_point::max()) {
+        messageQueueConditionVariable.wait_until(lk,until);
+      } else {
+        messageQueueConditionVariable.wait(lk);
+      }
     }
     while (!messageQueue.empty()) {
       StoredMessage storedMessage = messageQueue.top();
