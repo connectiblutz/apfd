@@ -9,11 +9,11 @@ namespace apfd {
 const uint16_t ApfdWorker::MSG_READCONFIG = 1; 
 
 ApfdWorker::ApfdWorker() {
-  post(common::MessageThread::Message(MSG_READCONFIG));
+  post(MSG_READCONFIG);
 }
 
 void ApfdWorker::OnMessage(common::MessageThread::Message message) {
-    std::cout << "received message "<<message.code() << std::endl;
+    LOG(std::cout,"received message "<<message.code());
     if (message.code()==ApfdWorker::MSG_READCONFIG) {
       std::string configStr = common::FileUtil::FileToString("apfd.json");
       cJSON *config = cJSON_Parse(configStr.c_str());

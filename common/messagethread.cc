@@ -14,20 +14,29 @@ MessageThread::~MessageThread() {
   join();
 }
 
+void MessageThread::post(uint16_t code) {
+  post(Message(code));
+}
+
 void MessageThread::post(Message message) {
-  std::unique_lock<std::mutex> lk(messageQueueMutex);
+  std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
   messageQueue.push(StoredMessage(message));
   messageQueueConditionVariable.notify_one();
 }
 void MessageThread::postDelayed(Message message, std::chrono::milliseconds delay) {
   auto now = std::chrono::steady_clock::now();
-  std::unique_lock<std::mutex> lk(messageQueueMutex);
+  std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
   messageQueue.push(StoredMessage(message, now+delay));
   messageQueueConditionVariable.notify_one();
 }
 
+void MessageThread::clear(uint16_t code) {
+  std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
+  messageQueue.erase(StoredMessage(Message(code)));
+}
+
 void MessageThread::stop() {
-  post(Message(MSG_STOP));
+  post(MSG_STOP);
 }
 
 void MessageThread::join() {
@@ -39,7 +48,7 @@ void MessageThread::join() {
 void MessageThread::messageLoop() {
   std::chrono::steady_clock::time_point until(std::chrono::steady_clock::time_point::max());
   while (true) {
-    std::unique_lock<std::mutex> lk(messageQueueMutex);
+    std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
     if (messageQueue.empty()) {
       if (until!= std::chrono::steady_clock::time_point::max()) {
         messageQueueConditionVariable.wait_until(lk,until);
@@ -48,7 +57,7 @@ void MessageThread::messageLoop() {
       }
     }
     while (!messageQueue.empty()) {
-      StoredMessage storedMessage = messageQueue.top();
+      auto storedMessage = messageQueue.top();
       if (!storedMessage.isImmediate) {
         auto now = std::chrono::steady_clock::now();
         if (now < storedMessage.deliveryTime) {
@@ -56,8 +65,8 @@ void MessageThread::messageLoop() {
           break;
         }
       }
-      until=std::chrono::steady_clock::time_point::max();
       messageQueue.pop();
+      until=std::chrono::steady_clock::time_point::max();
       if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
       OnMessage(storedMessage.message);
     }

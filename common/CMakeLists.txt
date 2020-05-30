@@ -11,6 +11,7 @@ add_library(common
   fileutil.h
   logutil.cc
   logutil.h
+  priorityqueueex.h
 )
 
 target_include_directories(common PUBLIC
