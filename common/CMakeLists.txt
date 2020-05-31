@@ -14,8 +14,16 @@ add_library(common
   priorityqueueex.h
   executil.cc
   executil.h
+  socketutil.cc
+  socketutil.h
 )
 
 target_include_directories(common PUBLIC
   .
 )
+
+if (WIN32)
+target_link_libraries(common PUBLIC
+  Ws2_32
+)
+endif()

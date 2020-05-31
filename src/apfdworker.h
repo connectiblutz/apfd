@@ -12,7 +12,6 @@ class ApfdWorker : public common::MessageThread {
   private:
     static const uint16_t MSG_READCONFIG;
     static const uint16_t MSG_CHECKSERVICE;
-    static const std::string POWERSHELL_PREFIX;
 };
 
 }

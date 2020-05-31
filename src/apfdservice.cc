@@ -1,5 +1,6 @@
 #include "apfdservice.h"
 #include "executil.h"
+#include "socketutil.h"
 
 namespace apfd {
 
@@ -42,6 +43,8 @@ std::string ApfdService::translateIp(std::string ip) {
 }
 
 bool ApfdService::isReachable() {
+  auto socket = common::SocketUtil::Create(protocol,ApfdService::translateIp(localIp),localPort);
+  if (socket) return socket->isConnected();
   return false;
 }
 
