@@ -25,28 +25,28 @@ Import-Module -Force $PSScriptRoot\common\pscommon.psm1
 function clean {
   Param($arch, $config)
 
-  echo "Cleaning up $arch $config..."
+  Write-Output "Cleaning up $arch $config..."
 
   removeFolder _builds/$arch/$config
 }
 function setup {
   Param($arch, $config)
 
-  echo "Setting up $arch $config..."
+  Write-Output "Setting up $arch $config..."
 
   if (-Not (folderExists _builds/$arch/$config)) {
     createFolder _builds/$arch/$config
   }
-  cd _builds/$arch/$config
+  Set-Location _builds/$arch/$config
   $env:VSCMD_ARG_TGT_ARCH=$arch
   cmake ..\..\.. -GNinja -DCMAKE_BUILD_TYPE="$config" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
   CheckLastExitCode 0
-  cd ..\..\..
+  Set-Location ..\..\..
 }
 function build {
   Param($arch, $config)
 
-  echo "Building $arch $config..."
+  Write-Output "Building $arch $config..."
 
   $env:VSCMD_ARG_TGT_ARCH=$arch
   ninja -C _builds/$arch/$config
@@ -60,7 +60,7 @@ function fullArchSteps {
   build $arch $config
 }
 
-PUSHD
+Push-Location
 
 try {
 
@@ -81,4 +81,4 @@ try {
     }
   }
 
-} finally { POPD }
+} finally { Pop-Location }
