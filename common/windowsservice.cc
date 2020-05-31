@@ -150,13 +150,13 @@ WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> t
   _name=name;
   _thread=thread;
 
-	SERVICE_TABLE_ENTRY dispatchTable[] =
+	SERVICE_TABLE_ENTRYA dispatchTable[] =
 	{
 		{ (const LPSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTION)service_main },
 		{ NULL, NULL }
 	};
 
-	StartServiceCtrlDispatcher(dispatchTable);
+	StartServiceCtrlDispatcherA(dispatchTable);
 }
 
 }
