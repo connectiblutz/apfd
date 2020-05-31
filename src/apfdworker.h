@@ -18,8 +18,8 @@ class ApfdWorker : public common::MessageThread {
     bool isWsl(std::string localIp);
     std::string getWslName(std::string localIp);
     std::string getWslIp(std::string localIp);
-    void openPort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
-    void closePort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
+    void openPort(std::string name, std::string protocol, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
+    void closePort(std::string name, std::string protocol, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
 };
 
 }

@@ -8,7 +8,6 @@ Building
  - x86 debug - `.\build.ps1 -x86 -debug`
  - Everything - `.\build.ps1 -all`
  - Clean and build - `.\build.ps1 -clean`
-
 Installing
 ===
  - Install service - `apfd.exe --install`
@@ -17,3 +16,21 @@ Installing
 Running manually
 ===
  - `apfd.exe --debug`
+
+Config
+===
+Example `apfd.json`
+```
+{
+  "services": [
+    {
+      "name":"Debian Apache",
+      "protocol":"tcp",
+      "localIp":":Debian",
+      "localPort":80,
+      "remoteIp":"any",
+      "remotePort":80
+    }
+  ]
+}
+```

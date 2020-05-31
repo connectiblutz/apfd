@@ -43,16 +43,19 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
     if (enabled && cJSON_IsBool(enabled) && cJSON_IsFalse(enabled)) return;
 
     cJSON* name = cJSON_GetObjectItem(service,"name");
+    cJSON* protocol = cJSON_GetObjectItem(service,"protocol");
     cJSON* localIp = cJSON_GetObjectItem(service,"localIp");
     cJSON* localPort = cJSON_GetObjectItem(service,"localPort");
     cJSON* remoteIp = cJSON_GetObjectItem(service,"remoteIp");
     cJSON* remotePort = cJSON_GetObjectItem(service,"remotePort");
     if (!name || !cJSON_IsString(name)) return;
+    if (!protocol || !cJSON_IsString(protocol)) return;
     if (!localIp || !cJSON_IsString(localIp)) return;
     if (!localPort || !cJSON_IsNumber(localPort)) return;
     if (!remoteIp || !cJSON_IsString(remoteIp)) return;
     if (!remotePort || !cJSON_IsNumber(remotePort)) return;
     std::string nameStr = cJSON_GetStringValue(name);
+    std::string protocolStr = cJSON_GetStringValue(protocol);
     std::string localIpStr = cJSON_GetStringValue(localIp);
     uint16_t localPortNum = cJSON_GetNumberValue(localPort);
     std::string remoteIpStr = cJSON_GetStringValue(remoteIp);
@@ -73,9 +76,9 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
       isOpen = isReachable(translateIp(localIpStr),localPortNum);
     }
     if (isOpen) {
-      openPort(nameStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
+      openPort(nameStr,protocolStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
     } else {
-      closePort(nameStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
+      closePort(nameStr,protocolStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
     }
 
     postDelayed(message,std::chrono::seconds(15));
@@ -111,18 +114,18 @@ std::string ApfdWorker::getWslIp(std::string localIp) {
   return output;
 }
 
-void ApfdWorker::openPort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
-  closePort(name,localIp,localPort,remoteIp,remotePort);
-  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Outbound -LocalPort $ports_a -Action Allow -Protocol TCP");
-  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Inbound -LocalPort $ports_a -Action Allow -Protocol TCP");  
-  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp+" connectport="+std::to_string(localPort)+" connectaddress="+localIp);
+void ApfdWorker::openPort(std::string name, std::string protocol, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
+  closePort(name,protocol,localIp,localPort,remoteIp,remotePort);
+  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Outbound -LocalPort $ports_a -Action Allow -Protocol "+protocol);
+  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Inbound -LocalPort $ports_a -Action Allow -Protocol "+protocol);  
+  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp+" connectport="+std::to_string(localPort)+" connectaddress="+localIp+" protocol="+protocol);
 }
 
-void ApfdWorker::closePort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
+void ApfdWorker::closePort(std::string name, std::string protocol, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
   UNUSED(localIp);
   UNUSED(localPort);
   common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"Remove-NetFireWallRule -DisplayName 'APFD "+name+"' ");  
-  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp);
+  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp+" protocol="+protocol);
 }
 
 }
