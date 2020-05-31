@@ -18,6 +18,8 @@ add_library(common
   socketutil.h
   stringutil.cc
   stringutil.h
+  singleton.cc
+  singleton.h
 )
 
 target_include_directories(common PUBLIC

@@ -6,11 +6,6 @@
 
 namespace apfd::common {
 
-namespace singleton {
-  std::weak_ptr<WindowsService> _;
-}
-
-
 SERVICE_STATUS          ssStatus;       // current status of the service
 SERVICE_STATUS_HANDLE   sshStatusHandle;
 
@@ -42,7 +37,7 @@ BOOL ReportStatusToSCMgr(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWa
 VOID ServiceStop()
 {
 	ReportStatusToSCMgr(SERVICE_STOP_PENDING, NO_ERROR, 3000);
-  auto s = singleton::_.lock();
+  auto s = Singleton::get<WindowsService>();
 	if (s) {
     s->thread()->stop();
   }
@@ -62,10 +57,10 @@ VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv)
 	}
 
 	std::thread mainThread([] {
-    auto s = singleton::_.lock();
-	   if (s) {
-       s->thread()->join();
-     }
+    auto s = Singleton::get<WindowsService>();
+    if (s) {
+      s->thread()->join();
+    }
   });
 
 	if (!ReportStatusToSCMgr(SERVICE_RUNNING, NO_ERROR, 0))
@@ -120,7 +115,7 @@ void WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
 	// register our service control handler:
   std::string name;
-  auto s = singleton::_.lock();
+  auto s = Singleton::get<WindowsService>();
 	if (s) {
     name = s->name();
   }
@@ -163,15 +158,5 @@ WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> t
 
 	StartServiceCtrlDispatcher(dispatchTable);
 }
-
-template<class... Args>
-std::shared_ptr<WindowsService> WindowsService::make_shared(Args&&... args)
-{
-  auto obj = new WindowsService(std::forward<Args>(args)...);
-  auto made = std::shared_ptr<WindowsService>(obj,D());
-  singleton::_=made;
-  return made;
-}
-template std::shared_ptr<WindowsService> WindowsService::make_shared<std::string,std::shared_ptr<MessageThread>>(std::string&&,std::shared_ptr<MessageThread>&&);
 
 }

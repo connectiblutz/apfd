@@ -4,20 +4,18 @@
 
 #include <string>
 #include <memory>
+#include "singleton.h"
 
 namespace apfd::common {
 
 class WindowsService {
   public:
-    template<class... Args>
-    static std::shared_ptr<WindowsService> make_shared(Args&&... args);
-  public:
     auto name() { return _name; }
     auto thread() { return _thread; }
   protected:
     WindowsService(std::string name, std::shared_ptr<MessageThread> thread);
-    class D { public: void operator()(WindowsService* p) const { delete p; } };
-    friend void D::operator()(WindowsService* p) const;
+    friend void Singleton::D<WindowsService>::operator()(WindowsService* p) const;
+    friend Singleton;
   private:
     std::string _name;
     std::shared_ptr<MessageThread> _thread;

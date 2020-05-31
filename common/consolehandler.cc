@@ -4,11 +4,6 @@
 
 namespace apfd::common {
 
-namespace singleton {
-  std::weak_ptr<ConsoleHandler> _;
-}
-
-
 BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
 {
   switch (fdwCtrlType)
@@ -16,7 +11,7 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
     // Handle the CTRL-C signal.
     case CTRL_C_EVENT:
     {
-      auto s = singleton::_.lock();
+      auto s = Singleton::get<ConsoleHandler>();
       if (s) {
         s->thread()->stop();
         return TRUE;
@@ -40,16 +35,5 @@ ConsoleHandler::ConsoleHandler(std::shared_ptr<MessageThread> thread) {
 ConsoleHandler::~ConsoleHandler() {
   SetConsoleCtrlHandler(NULL, TRUE);
 }
-
-
-template<class... Args>
-std::shared_ptr<ConsoleHandler> ConsoleHandler::make_shared(Args&&... args)
-{
-  auto obj = new ConsoleHandler(std::forward<Args>(args)...);
-  auto made = std::shared_ptr<ConsoleHandler>(obj,D());
-  singleton::_=made;
-  return made;
-}
-template std::shared_ptr<ConsoleHandler> ConsoleHandler::make_shared<std::shared_ptr<MessageThread>>(std::shared_ptr<MessageThread>&&);
 
 }
