@@ -24,12 +24,15 @@ Example `apfd.json`
 {
   "services": [
     {
+      "enabled":true,
       "name":"Debian Apache",
       "protocol":"tcp",
       "localIp":":Debian",
       "localPort":80,
       "remoteIp":"any",
-      "remotePort":80
+      "remotePort":80,
+      "autoStart":true,
+      "startCommand":"sudo service apache2 start"
     }
   ]
 }
