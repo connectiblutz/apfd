@@ -152,7 +152,7 @@ WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> t
 
 	SERVICE_TABLE_ENTRYA dispatchTable[] =
 	{
-		{ (const LPSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTION)service_main },
+		{ (const LPSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTIONA)service_main },
 		{ NULL, NULL }
 	};
 
