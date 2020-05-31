@@ -10,7 +10,8 @@ class ApfdWorker : public common::MessageThread {
   protected:
     void OnMessage(common::MessageThread::Message message);
   private:
-    static const uint16_t MSG_READCONFIG; 
+    static const uint16_t MSG_READCONFIG;
+    static const uint16_t MSG_CHECKSERVICE;
 };
 
 }

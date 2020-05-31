@@ -15,7 +15,7 @@ class MessageThread {
       public:
         Message(uint16_t code, std::shared_ptr<void> data = nullptr) : _code(code), _data(data) { }
         uint16_t code() const { return _code; }
-        template <typename T> T data() const { return std::static_pointer_cast<T>(_data); }
+        template <typename T> std::shared_ptr<T> data() const { return std::static_pointer_cast<T>(_data); }
       private:
         uint16_t _code;
         std::shared_ptr<void> _data;
