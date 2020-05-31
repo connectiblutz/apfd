@@ -13,6 +13,12 @@ class Socket {
   protected:
     int sock;
     bool connected;
+  private:
+    class WSAInit {
+      public:
+        WSAInit();
+        ~WSAInit();   
+    };
 };
 
 class TcpSocket : public Socket {

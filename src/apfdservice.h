@@ -13,10 +13,11 @@ class ApfdService {
     void openPort();
     void closePort();
   private:
-    static std::string translateIp(std::string ip);
-    static bool isWsl(std::string ip);
-    static std::string getWslName(std::string ip);
-    static std::string getWslIp(std::string ip);
+    static std::string translateIp(const std::string& ip);
+    static bool isWsl(const std::string& ip);
+    static std::string getWslName(const std::string& ip);
+    static std::string getWslInterface(const std::string& ip);
+    static std::string getWslIp(const std::string& ip);
   public:
     bool enabled;
     std::string name;
@@ -27,6 +28,8 @@ class ApfdService {
     uint16_t remotePort;
     bool autoStart;
     std::string startCommand;
+  private:
+    bool opened;
   private:
     static const std::string POWERSHELL_PREFIX;
 };

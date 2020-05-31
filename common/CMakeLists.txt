@@ -16,6 +16,8 @@ add_library(common
   executil.h
   socketutil.cc
   socketutil.h
+  stringutil.cc
+  stringutil.h
 )
 
 target_include_directories(common PUBLIC
