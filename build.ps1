@@ -20,7 +20,7 @@ if ($all) {
   $debug=$true
 }
 
-Import-Module -Force $PSScriptRoot\common.psm1
+Import-Module -Force $PSScriptRoot\common\pscommon.psm1
 
 function clean {
   Param($arch, $config)
