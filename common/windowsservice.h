@@ -14,8 +14,7 @@ class WindowsService {
     auto thread() { return _thread; }
   protected:
     WindowsService(std::string name, std::shared_ptr<MessageThread> thread);
-    friend void Singleton::D<WindowsService>::operator()(WindowsService* p) const;
-    friend Singleton;
+    friend Singleton::Weak;
   private:
     std::string _name;
     std::shared_ptr<MessageThread> _thread;

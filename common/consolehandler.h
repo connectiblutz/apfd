@@ -11,8 +11,7 @@ class ConsoleHandler {
   protected:
     ConsoleHandler(std::shared_ptr<MessageThread> thread);
     ~ConsoleHandler();
-    friend void Singleton::D<ConsoleHandler>::operator()(ConsoleHandler* p) const;
-    friend Singleton;
+    friend Singleton::Weak;
   private:
     std::shared_ptr<MessageThread> _thread;
 };
