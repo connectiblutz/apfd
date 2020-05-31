@@ -6,6 +6,7 @@
 namespace apfd::common {
 
 #define LOG(out,output) \
+  {\
   time_t now = time(0);\
   struct tm p;\
   localtime_s(&p,&now);\
@@ -13,6 +14,7 @@ namespace apfd::common {
   strftime(str, sizeof str, "%F-%T", &p);\
   out << str << " : ";\
   out << output;\
-  out << std::endl;
+  out << std::endl;\
+  }
 
 }

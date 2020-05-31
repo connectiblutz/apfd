@@ -45,14 +45,14 @@ class MessageThread {
       public:
         bool operator() (StoredMessage a, StoredMessage b)
         {
-          if (a.isImmediate&&!b.isImmediate) return true;
-          if (!a.isImmediate&&b.isImmediate) return false;
+          if (a.isImmediate&&!b.isImmediate) return false;
+          if (!a.isImmediate&&b.isImmediate) return true;
           if (!a.isImmediate&&!b.isImmediate) {
             if (a.deliveryTime!=b.deliveryTime) {
-              return a.deliveryTime < b.deliveryTime;
+              return a.deliveryTime > b.deliveryTime;
             }
           }
-          return a.insertionTime < b.insertionTime;
+          return a.insertionTime > b.insertionTime;
         }
     };
     class StoredMessageCodeCompare {
@@ -66,8 +66,8 @@ class MessageThread {
     std::thread t;
     void messageLoop();
     static const uint16_t MSG_STOP;
-    std::recursive_mutex messageQueueMutex;
-    std::condition_variable_any messageQueueConditionVariable;
+    std::mutex messageQueueMutex;
+    std::condition_variable messageQueueConditionVariable;
     priority_queue_ex<StoredMessage,std::vector<StoredMessage>,StoredMessageCompare,StoredMessageCodeCompare> messageQueue;
 };
 

@@ -78,7 +78,7 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
       closePort(nameStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
     }
 
-    postDelayed(Message(ApfdWorker::MSG_CHECKSERVICE,message.data<cJSON>()),std::chrono::milliseconds(1*60*1000));
+    postDelayed(message,std::chrono::seconds(15));
   }
 }
 

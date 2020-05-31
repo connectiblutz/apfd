@@ -19,19 +19,19 @@ void MessageThread::post(uint16_t code) {
 }
 
 void MessageThread::post(Message message) {
-  std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
   messageQueue.push(StoredMessage(message));
   messageQueueConditionVariable.notify_one();
 }
 void MessageThread::postDelayed(Message message, std::chrono::milliseconds delay) {
   auto now = std::chrono::steady_clock::now();
-  std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
   messageQueue.push(StoredMessage(message, now+delay));
   messageQueueConditionVariable.notify_one();
 }
 
 void MessageThread::clear(uint16_t code) {
-  std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
   messageQueue.erase(StoredMessage(Message(code)));
 }
 
@@ -48,14 +48,14 @@ void MessageThread::join() {
 void MessageThread::messageLoop() {
   std::chrono::steady_clock::time_point until(std::chrono::steady_clock::time_point::max());
   while (true) {
-    std::unique_lock<std::recursive_mutex> lk(messageQueueMutex);
-    if (messageQueue.empty()) {
-      if (until!= std::chrono::steady_clock::time_point::max()) {
-        messageQueueConditionVariable.wait_until(lk,until);
-      } else {
-        messageQueueConditionVariable.wait(lk);
-      }
+    std::unique_lock<std::mutex> lk(messageQueueMutex);
+    // wait if there are no messages or we have an until time
+    if (until!= std::chrono::steady_clock::time_point::max()) {
+      messageQueueConditionVariable.wait_until(lk,until);
+    } else if (messageQueue.empty()) {
+      messageQueueConditionVariable.wait(lk);
     }
+    // process messages until the next is a delayed
     while (!messageQueue.empty()) {
       auto storedMessage = messageQueue.top();
       if (!storedMessage.isImmediate) {
@@ -68,7 +68,10 @@ void MessageThread::messageLoop() {
       messageQueue.pop();
       until=std::chrono::steady_clock::time_point::max();
       if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
+      // unlock so OnMessage can post new messages
+      lk.unlock();
       OnMessage(storedMessage.message);
+      lk.lock();
     }
   }
 }
