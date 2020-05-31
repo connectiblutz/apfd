@@ -11,8 +11,8 @@ function CheckLastExitCode {
 EXE RETURNED EXIT CODE $LastExitCode
 CALLSTACK:$(Get-PSCallStack | Out-String)
 "@
-		echo $msg
-        POPD
+		Write-Output $msg
+        Pop-Location
         Exit 1
     }
 }
