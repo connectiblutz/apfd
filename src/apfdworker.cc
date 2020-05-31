@@ -12,6 +12,8 @@ namespace apfd {
 const uint16_t ApfdWorker::MSG_READCONFIG = 1;
 const uint16_t ApfdWorker::MSG_CHECKSERVICE = 2;
 
+const std::string ApfdWorker::POWERSHELL_PREFIX="powershell -ExecutionPolicy Bypass -Command ";
+
 ApfdWorker::ApfdWorker() {
   post(ApfdWorker::MSG_READCONFIG);
 }
@@ -40,14 +42,17 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
     cJSON* enabled = cJSON_GetObjectItem(service,"enabled");
     if (enabled && cJSON_IsBool(enabled) && cJSON_IsFalse(enabled)) return;
 
+    cJSON* name = cJSON_GetObjectItem(service,"name");
     cJSON* localIp = cJSON_GetObjectItem(service,"localIp");
     cJSON* localPort = cJSON_GetObjectItem(service,"localPort");
     cJSON* remoteIp = cJSON_GetObjectItem(service,"remoteIp");
     cJSON* remotePort = cJSON_GetObjectItem(service,"remotePort");
+    if (!name || !cJSON_IsString(name)) return;
     if (!localIp || !cJSON_IsString(localIp)) return;
     if (!localPort || !cJSON_IsNumber(localPort)) return;
     if (!remoteIp || !cJSON_IsString(remoteIp)) return;
     if (!remotePort || !cJSON_IsNumber(remotePort)) return;
+    std::string nameStr = cJSON_GetStringValue(name);
     std::string localIpStr = cJSON_GetStringValue(localIp);
     uint16_t localPortNum = cJSON_GetNumberValue(localPort);
     std::string remoteIpStr = cJSON_GetStringValue(remoteIp);
@@ -58,23 +63,30 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
       cJSON* startCommand = cJSON_GetObjectItem(service,"startCommand");
       if (startCommand && cJSON_IsString(startCommand)) {
         std::string startCommandStr = cJSON_GetStringValue(startCommand);
-        if (isWSL(localIpStr)) {
-          std::string vmName = getWSLName(localIpStr);
+        if (isWsl(localIpStr)) {
+          std::string vmName = getWslName(localIpStr);
           common::ExecUtil::Run("wsl -d "+vmName+" -- "+startCommandStr);
         } else {
           common::ExecUtil::Run(startCommandStr);
         }
       }
-      isOpen = isReachable(localIpStr,localPortNum);
+      isOpen = isReachable(translateIp(localIpStr),localPortNum);
     }
     if (isOpen) {
-      openPort(localIpStr,localPortNum,remoteIpStr,remotePortNum);
+      openPort(nameStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
     } else {
-      closePort(localIpStr,localPortNum,remoteIpStr,remotePortNum);
+      closePort(nameStr,translateIp(localIpStr),localPortNum,translateIp(remoteIpStr),remotePortNum);
     }
 
     postDelayed(Message(ApfdWorker::MSG_CHECKSERVICE,message.data<cJSON>()),std::chrono::milliseconds(1*60*1000));
   }
+}
+
+std::string ApfdWorker::translateIp(std::string ip) {
+  if (ip=="any") return "0.0.0.0";
+  if (ip=="localhost") return "127.0.0.1";
+  if (isWsl(ip)) return getWslIp(ip);
+  return ip;
 }
 
 bool ApfdWorker::isReachable(std::string localIp, uint16_t localPort) {
@@ -82,27 +94,35 @@ bool ApfdWorker::isReachable(std::string localIp, uint16_t localPort) {
   UNUSED(localPort);
   return false;
 }
-bool ApfdWorker::isWSL(std::string localIp) {
+
+bool ApfdWorker::isWsl(std::string localIp) {
   return (localIp.size()>1 && localIp[0]==':' && localIp[1]!=':');
 }
 
-std::string ApfdWorker::getWSLName(std::string localIp) {
-  if (isWSL(localIp)) return localIp.substr(1);
+std::string ApfdWorker::getWslName(std::string localIp) {
+  if (isWsl(localIp)) return localIp.substr(1);
   return "";
 }
 
-void ApfdWorker::openPort(std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
-  UNUSED(localIp);
-  UNUSED(localPort);
-  UNUSED(remoteIp);
-  UNUSED(remotePort);
+std::string ApfdWorker::getWslIp(std::string localIp) {
+  if (!isWsl(localIp)) return localIp;
+  std::string vmName = getWslName(localIp);
+  std::string output = common::ExecUtil::Run("wsl -d "+vmName+" -- "+" ip -4 addr show eth0 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'");
+  return output;
 }
 
-void ApfdWorker::closePort(std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
+void ApfdWorker::openPort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
+  closePort(name,localIp,localPort,remoteIp,remotePort);
+  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Outbound -LocalPort $ports_a -Action Allow -Protocol TCP");
+  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Inbound -LocalPort $ports_a -Action Allow -Protocol TCP");  
+  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp+" connectport="+std::to_string(localPort)+" connectaddress="+localIp);
+}
+
+void ApfdWorker::closePort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort) {
   UNUSED(localIp);
   UNUSED(localPort);
-  UNUSED(remoteIp);
-  UNUSED(remotePort);
+  common::ExecUtil::Run(ApfdWorker::POWERSHELL_PREFIX+"Remove-NetFireWallRule -DisplayName 'APFD "+name+"' ");  
+  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp);
 }
 
 }

@@ -12,11 +12,14 @@ class ApfdWorker : public common::MessageThread {
   private:
     static const uint16_t MSG_READCONFIG;
     static const uint16_t MSG_CHECKSERVICE;
+    static const std::string POWERSHELL_PREFIX;
     bool isReachable(std::string localIp, uint16_t localPort);
-    bool isWSL(std::string localIp);
-    std::string getWSLName(std::string localIp);
-    void openPort(std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
-    void closePort(std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
+    std::string translateIp(std::string ip);
+    bool isWsl(std::string localIp);
+    std::string getWslName(std::string localIp);
+    std::string getWslIp(std::string localIp);
+    void openPort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
+    void closePort(std::string name, std::string localIp, uint16_t localPort, std::string remoteIp, uint16_t remotePort);
 };
 
 }
