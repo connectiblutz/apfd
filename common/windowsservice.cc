@@ -152,7 +152,6 @@ cleanup:
 }
 
 WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> thread) {
-  singleton::_=std::shared_ptr<WindowsService>(this);
   _name=name;
   _thread=thread;
 
