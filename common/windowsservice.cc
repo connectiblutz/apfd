@@ -52,12 +52,6 @@ VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv)
   UNUSED(lpszArgv);
 
 	// Service initialization
-	if (!ReportStatusToSCMgr(SERVICE_START_PENDING, NO_ERROR, 3000))
-	{
-		ServiceStop();
-		return;
-	}
-
 	if (!ReportStatusToSCMgr(SERVICE_RUNNING, NO_ERROR, 0))
 	{
 		ServiceStop();
@@ -147,13 +141,14 @@ cleanup:
 WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> thread) {
   _name=name;
   _thread=thread;
-  
+}
+
+void WindowsService::start() {
 	SERVICE_TABLE_ENTRYA dispatchTable[] =
 	{
 		{ (const LPSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTIONA)service_main },
 		{ NULL, NULL }
 	};
-
 	StartServiceCtrlDispatcherA(dispatchTable);
 }
 
@@ -219,6 +214,7 @@ bool WindowsService::Uninstall(std::string name) {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
     SERVICE_STATUS ssStatus; 
+	SERVICE_STATUS_PROCESS ssp;
 
     // Get a handle to the SCM database. 
     schSCManager = OpenSCManagerA( 
@@ -236,13 +232,24 @@ bool WindowsService::Uninstall(std::string name) {
     schService = OpenServiceA( 
         schSCManager,       // SCM database 
         name.c_str(),          // name of service 
-        DELETE);            // need delete access 
+        SERVICE_ALL_ACCESS);            // need delete access 
  
     if (schService == NULL)
     { 
         LOG(std::cout, "OpenService failed (" << GetLastError() << ")");
         CloseServiceHandle(schSCManager);
         return (GetLastError()==0 || GetLastError()==ERROR_SERVICE_DOES_NOT_EXIST);
+    }
+
+	if ( !ControlService(
+            schService, 
+            SERVICE_CONTROL_STOP, 
+            (LPSERVICE_STATUS) &ssp ) )
+    {
+        LOG(std::cout, "ControlService failed (" << GetLastError() << ")");
+		//CloseServiceHandle(schService); 
+		//CloseServiceHandle(schSCManager);
+		//return false;
     }
 
     // Delete the service.

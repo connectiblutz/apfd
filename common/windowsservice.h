@@ -14,6 +14,7 @@ class WindowsService {
     static bool Uninstall(std::string name);
     static void ChdirToBin();
   public:
+    void start();
     auto name() { return _name; }
     auto thread() { return _thread; }
   protected:
