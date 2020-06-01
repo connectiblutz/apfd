@@ -2,6 +2,7 @@
 #include "apfdworker.h"
 #include "consolehandler.h"
 #include "windowsservice.h"
+#include "logutil.h"
 
 namespace apfd {
 
@@ -14,6 +15,7 @@ int runAsApp() {
 }
 
 int runAsDaemon() {
+  common::Singleton::Strong::create<common::LogUtil>(std::filesystem::path("apfd.log"));
   common::WindowsService::ChdirToBin();
   auto runnerThread = std::make_shared<ApfdWorker>();
   auto mt = std::dynamic_pointer_cast<common::MessageThread>(runnerThread);
