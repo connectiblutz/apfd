@@ -4,6 +4,7 @@
 #include "cJSON.h"
 #include "logutil.h"
 #include "apfdservice.h"
+#include "pathutil.h"
 
 namespace apfd {
 
@@ -18,7 +19,11 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
   common::LogUtil::Debug()<<"received message "<<message.code();
   if (message.code()==ApfdWorker::MSG_READCONFIG) {
     clear(ApfdWorker::MSG_CHECKSERVICE);
-    std::string configStr = common::FileUtil::FileToString("apfd.json");
+    auto configPath = std::filesystem::path("apfd.json");
+    if (!std::filesystem::exists(configPath)) {
+      configPath = common::PathUtil::binaryPath() / configPath;
+    }
+    std::string configStr = common::FileUtil::FileToString(configPath);
     cJSON* config = cJSON_Parse(configStr.c_str());
     cJSON* services = cJSON_GetObjectItem(config,"services");
     if (services && cJSON_IsArray(services)) {
