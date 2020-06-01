@@ -151,7 +151,7 @@ void WindowsService::start() {
 }
 
 
-bool WindowsService::Install(std::string name, std::string description) {
+bool WindowsService::Install(std::string name, std::string description, std::string user, std::string password) {
 	WindowsService::Uninstall(name);
 
     SC_HANDLE schSCManager;
@@ -187,8 +187,8 @@ bool WindowsService::Install(std::string name, std::string description) {
         NULL,                      // no load ordering group 
         NULL,                      // no tag identifier 
         NULL,                      // no dependencies 
-        NULL,                      // LocalSystem account 
-        NULL);                     // no password 
+        user.empty()?nullptr:(".\\"+user).c_str(),                      // LocalSystem account 
+        password.empty()?nullptr:password.c_str());                     // no password 
  
     if (schService == NULL) {
         LogUtil::Debug()<<"CreateService failed (" << GetLastError() << ")";

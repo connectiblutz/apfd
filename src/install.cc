@@ -3,8 +3,8 @@
 
 namespace apfd {
 
-int installAsService() {
-  common::WindowsService::Install("apfd","Auto Port Forward");
+int installAsService(std::string user, std::string password) {
+  common::WindowsService::Install("apfd","Auto Port Forward",user,password);
   return 0;
 }
 

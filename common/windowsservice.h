@@ -10,7 +10,7 @@ namespace apfd::common {
 
 class WindowsService {
   public:
-    static bool Install(std::string name, std::string description);
+    static bool Install(std::string name, std::string description, std::string user="", std::string password="");
     static bool Uninstall(std::string name);
   public:
     void start();
