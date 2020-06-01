@@ -28,7 +28,7 @@ Example `apfd.json`
       "enabled":true,
       "name":"Debian Apache",
       "protocol":"tcp", // only tcp
-      "localIp":":Debian:lo", // ipv4 address | any | localhost | :<wsl distro>:<iface>
+      "localIp":":Debian:lo", // ipv4 address | any | localhost | :<wsl distro>:<iface> (use lo for wsl1, eth0 for wsl2)
       "localPort":80,
       "remoteIp":"any", // ipv4 address | any | localhost
       "remotePort":80,

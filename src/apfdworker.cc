@@ -44,7 +44,7 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
     } else {
       service->closePort();
     }
-    postDelayed(message,std::chrono::seconds(15));
+    postDelayed(message,std::chrono::minutes(5));
   }
 }
 

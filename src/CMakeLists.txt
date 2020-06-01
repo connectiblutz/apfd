@@ -10,6 +10,8 @@ add_executable(apfd
   apfdworker.h
   apfdservice.cc
   apfdservice.h
+  wslutil.cc
+  wslutil.h
 )
 
 target_link_libraries(apfd

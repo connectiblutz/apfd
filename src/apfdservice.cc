@@ -2,6 +2,7 @@
 #include "executil.h"
 #include "socketutil.h"
 #include "stringutil.h"
+#include "wslutil.h"
 
 namespace apfd {
 
@@ -40,7 +41,7 @@ ApfdService::~ApfdService() {
 std::string ApfdService::translateIp(const std::string& ip) {
   if (ip=="any") return "0.0.0.0";
   if (ip=="localhost") return "127.0.0.1";
-  if (ApfdService::isWsl(ip)) return ApfdService::getWslIp(ip);
+  if (WslUtil::isWsl(ip)) return WslUtil::getWslIp(ip);
   return ip;
 }
 
@@ -48,34 +49,6 @@ bool ApfdService::isReachable() {
   auto socket = common::SocketUtil::Create(protocol,ApfdService::translateIp(localIp),localPort);
   if (socket) return socket->isConnected();
   return false;
-}
-
-bool ApfdService::isWsl(const std::string& ip) {
-  return (ip.size()>1 && ip[0]==':' && ip[1]!=':');
-}
-
-std::string ApfdService::getWslName(const std::string& ip) {
-  if (isWsl(ip)) {
-    auto parts = common::StringUtil::split(ip,':');
-    if (parts.size()>=2) return parts[1];
-  }
-  return "";
-}
-std::string ApfdService::getWslInterface(const std::string& ip) {
-  if (isWsl(ip)) {
-    auto parts = common::StringUtil::split(ip,':');
-    if (parts.size()>=3) return parts[2];
-    return "lo";
-  }
-  return "";
-}
-
-std::string ApfdService::getWslIp(const std::string& ip) {
-  if (!ApfdService::isWsl(ip)) return ip;
-  std::string vmName = ApfdService::getWslName(ip);
-  std::string vmInterface = ApfdService::getWslInterface(ip);
-  std::string output = common::ExecUtil::Run("wsl -d "+vmName+" -- "+" /bin/bash -c \"ip -4 addr show "+vmInterface+" | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\"");
-  return common::StringUtil::trim(output);
 }
 
 void ApfdService::openPort() {
@@ -92,8 +65,8 @@ void ApfdService::closePort() {
 }
 
 void ApfdService::execStart() {  
-  if (ApfdService::isWsl(localIp)) {
-    std::string vmName = ApfdService::getWslName(localIp);
+  if (WslUtil::isWsl(localIp)) {
+    std::string vmName = WslUtil::getWslName(localIp);
     common::ExecUtil::Run("wsl -d "+vmName+" -- "+startCommand);
   } else {
     common::ExecUtil::Run(startCommand);
