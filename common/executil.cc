@@ -7,7 +7,7 @@ namespace apfd::common {
 
 std::string ExecUtil::Run(std::string command) {
   if (command.empty()) return "";  
-  LOG(std::cout,command);
+  LogUtil::Debug()<<command;
   FILE   *pPipe;
   if( !(pPipe = _popen( command.c_str(), "rt" )) ) {
    return "";
@@ -22,7 +22,7 @@ std::string ExecUtil::Run(std::string command) {
   {
     /*int returnCode = */_pclose( pPipe ) ;
   }
-  LOG(std::cout,buf.str());
+  LogUtil::Debug()<<buf.str();
   return buf.str();
 }
 

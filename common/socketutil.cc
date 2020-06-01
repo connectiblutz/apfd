@@ -16,7 +16,7 @@ Socket::WSAInit::~WSAInit() {
 Socket::Socket(int af, int type, std::string ip, uint16_t port) : sock(0),connected(false) {
   static WSAInit wsaInit;
 
-  LOG(std::cout,"creating socket to "<<ip<<":"<<port);
+  LogUtil::Debug()<<"creating socket to "<<ip<<":"<<port;
   sock = socket(af, type, 0);
   struct sockaddr_in serv_addr;
   serv_addr.sin_family = af; 

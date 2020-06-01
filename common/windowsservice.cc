@@ -161,7 +161,7 @@ bool WindowsService::Install(std::string name, std::string description) {
     char szPath[MAX_PATH];
 
     if( !GetModuleFileNameA( nullptr, szPath, MAX_PATH ) ) {
-        LOG(std::cout, "Cannot install service (" << GetLastError() << ")");
+        LogUtil::Debug()<<"Cannot install service (" << GetLastError() << ")";
         return false;
     }
 
@@ -172,7 +172,7 @@ bool WindowsService::Install(std::string name, std::string description) {
         SC_MANAGER_ALL_ACCESS);  // full access rights 
  
     if (NULL == schSCManager) {
-        LOG(std::cout, "OpenSCManager failed (" << GetLastError() << ")");
+        LogUtil::Debug()<<"OpenSCManager failed (" << GetLastError() << ")";
         return false;
     }
 
@@ -193,13 +193,13 @@ bool WindowsService::Install(std::string name, std::string description) {
         NULL);                     // no password 
  
     if (schService == NULL) {
-        LOG(std::cout,"CreateService failed (" << GetLastError() << ")");
+        LogUtil::Debug()<<"CreateService failed (" << GetLastError() << ")";
         CloseServiceHandle(schSCManager);
         return false;
     }
 
 	if (!StartServiceA(schService,0,nullptr)) {
-        LOG(std::cout,"StartService failed (" << GetLastError() << ")");
+        LogUtil::Debug()<<"StartService failed (" << GetLastError() << ")";
         CloseServiceHandle(schSCManager);
         return false;
 	}
@@ -224,7 +224,7 @@ bool WindowsService::Uninstall(std::string name) {
  
     if (NULL == schSCManager) 
     {
-		LOG(std::cout, "OpenSCManager failed (" << GetLastError() << ")");
+		LogUtil::Debug()<<"OpenSCManager failed (" << GetLastError() << ")";
         return false;
     }
 
@@ -236,7 +236,7 @@ bool WindowsService::Uninstall(std::string name) {
  
     if (schService == NULL)
     { 
-        LOG(std::cout, "OpenService failed (" << GetLastError() << ")");
+        LogUtil::Debug()<<"OpenService failed (" << GetLastError() << ")";
         CloseServiceHandle(schSCManager);
         return (GetLastError()==0 || GetLastError()==ERROR_SERVICE_DOES_NOT_EXIST);
     }
@@ -246,7 +246,7 @@ bool WindowsService::Uninstall(std::string name) {
             SERVICE_CONTROL_STOP, 
             (LPSERVICE_STATUS) &ssp ) )
     {
-        LOG(std::cout, "ControlService failed (" << GetLastError() << ")");
+        LogUtil::Debug()<<"ControlService failed (" << GetLastError() << ")";
 		//CloseServiceHandle(schService); 
 		//CloseServiceHandle(schSCManager);
 		//return false;
@@ -255,7 +255,7 @@ bool WindowsService::Uninstall(std::string name) {
     // Delete the service.
     if (! DeleteService(schService) ) 
     {
-		LOG(std::cout, "DeleteService failed (" << GetLastError() << ")");
+		LogUtil::Debug()<<"DeleteService failed (" << GetLastError() << ")";
 		CloseServiceHandle(schService); 
 		CloseServiceHandle(schSCManager);
         return false;

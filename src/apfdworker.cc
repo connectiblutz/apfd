@@ -15,7 +15,7 @@ ApfdWorker::ApfdWorker() {
 }
 
 void ApfdWorker::OnMessage(common::MessageThread::Message message) {
-  LOG(std::cout,"received message "<<message.code());
+  common::LogUtil::Debug()<<"received message "<<message.code();
   if (message.code()==ApfdWorker::MSG_READCONFIG) {
     clear(ApfdWorker::MSG_CHECKSERVICE);
     std::string configStr = common::FileUtil::FileToString("apfd.json");

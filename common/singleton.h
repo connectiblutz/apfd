@@ -15,7 +15,7 @@ class Singleton {
           auto index = std::type_index(typeid(C));
           auto cached = strongSingleton.find(index);
           if (cached!=strongSingleton.end()) {
-            auto shared = strong->second;
+            auto shared = cached->second;
             return std::static_pointer_cast<C>(shared);
           }
           auto obj = new C(std::forward<Args>(args)...);
