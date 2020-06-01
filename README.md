@@ -12,7 +12,7 @@ Building
 Installing
 ===
  - Install service - `apfd.exe --install <windows account name> <windows account password>`
-  - You must enable Log On As a Service for your account
+   - You must enable Log On As a Service for your account
  - Remove service - `apfd.exe --remove`
 
 Running manually
