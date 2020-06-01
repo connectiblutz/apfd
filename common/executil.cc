@@ -16,7 +16,7 @@ std::string ExecUtil::Run(std::string command) {
   char   psBuffer[1024];
   while(fgets(psBuffer, sizeof psBuffer, pPipe))
   {
-    buf << psBuffer << std::endl;
+    buf << psBuffer;
   }
   if (feof( pPipe))
   {

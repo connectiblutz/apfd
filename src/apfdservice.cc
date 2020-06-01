@@ -80,14 +80,14 @@ std::string ApfdService::getWslIp(const std::string& ip) {
 
 void ApfdService::openPort() {
   opened=true;
-  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Outbound -LocalPort $ports_a -Action Allow -Protocol "+protocol);
-  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Inbound -LocalPort $ports_a -Action Allow -Protocol "+protocol);  
-  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp+" connectport="+std::to_string(localPort)+" connectaddress="+localIp+" protocol="+protocol);
+  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Outbound -LocalPort "+std::to_string(remotePort)+" -Action Allow -Protocol "+protocol);
+  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+"New-NetFireWallRule -DisplayName 'APFD "+name+"' -Direction Inbound -LocalPort "+std::to_string(remotePort)+" -Action Allow -Protocol "+protocol);  
+  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" connectport="+std::to_string(localPort)+" connectaddress="+ApfdService::translateIp(localIp)+" protocol="+protocol);
 }
 
 void ApfdService::closePort() {
   common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+"Remove-NetFireWallRule -DisplayName 'APFD "+name+"' ");  
-  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+remoteIp+" protocol="+protocol);
+  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" protocol="+protocol);
   opened=false;
 }
 
