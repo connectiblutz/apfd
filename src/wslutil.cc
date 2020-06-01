@@ -54,7 +54,7 @@ std::string WslUtil::getWslIp(const std::string& ip) {
   if (!WslUtil::isWsl(ip)) return ip;
   std::string vmName = WslUtil::getWslName(ip);
   std::string vmInterface = WslUtil::getWslInterface(ip);
-  std::string output = common::ExecUtil::Run("wsl -d "+vmName+" -- "+" /bin/bash -c \"ip -4 addr show "+vmInterface+" | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\"");
+  std::string output = common::ExecUtil::Run("wsl -d "+vmName+" -- /bin/bash -c \"ip -4 addr show "+vmInterface+" | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\"");
   return common::StringUtil::trim(output);
 }
 
