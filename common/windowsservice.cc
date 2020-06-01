@@ -58,13 +58,6 @@ VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv)
 		return;
 	}
 
-	std::thread mainThread([] {
-    auto s = Singleton::get<WindowsService>();
-    if (s) {
-      s->thread()->join();
-    }
-  });
-
 	if (!ReportStatusToSCMgr(SERVICE_RUNNING, NO_ERROR, 0))
 	{
 		ServiceStop();
@@ -74,7 +67,10 @@ VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv)
 
 
 	// need to idle in ServiceStart so Windows knows the service is running
-	mainThread.join();
+    auto s = Singleton::get<WindowsService>();
+    if (s) {
+      s->thread()->join();
+    }
 }
 
 
