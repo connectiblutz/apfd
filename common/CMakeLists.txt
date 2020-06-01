@@ -20,6 +20,8 @@ add_library(common
   stringutil.h
   singleton.cc
   singleton.h
+  pathutil.cc
+  pathutil.h
 )
 
 target_include_directories(common PUBLIC

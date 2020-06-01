@@ -1,8 +1,6 @@
 #include "windowsservice.h"
 #include "logutil.h"
 #include <windows.h>
-#include <filesystem>
-#include <direct.h>
 
 #define UNUSED(x) (void)(x)
 
@@ -265,14 +263,6 @@ bool WindowsService::Uninstall(std::string name) {
     CloseServiceHandle(schSCManager);
 
 	return true;
-}
-
-void WindowsService::ChdirToBin() {	
-    char szPath[MAX_PATH];
-    if( GetModuleFileNameA( nullptr, szPath, MAX_PATH ) ) {
-		std::filesystem::path module(szPath);
-		_chdir(module.parent_path().string().c_str());
-    }
 }
 
 }

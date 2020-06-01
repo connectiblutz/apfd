@@ -12,7 +12,6 @@ class WindowsService {
   public:
     static bool Install(std::string name, std::string description);
     static bool Uninstall(std::string name);
-    static void ChdirToBin();
   public:
     void start();
     auto name() { return _name; }
