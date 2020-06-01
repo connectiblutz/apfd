@@ -14,6 +14,7 @@ int runAsApp() {
 }
 
 int runAsDaemon() {
+  common::WindowsService::ChdirToBin();
   auto runnerThread = std::make_shared<ApfdWorker>();
   auto mt = std::dynamic_pointer_cast<common::MessageThread>(runnerThread);
   auto ws = common::Singleton::Weak::create<common::WindowsService>(std::string("apfd"),mt);

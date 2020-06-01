@@ -10,6 +10,10 @@ namespace apfd::common {
 
 class WindowsService {
   public:
+    static bool Install(std::string name, std::string description);
+    static bool Uninstall(std::string name);
+    static void ChdirToBin();
+  public:
     auto name() { return _name; }
     auto thread() { return _thread; }
   protected:

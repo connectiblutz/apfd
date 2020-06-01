@@ -1,6 +1,8 @@
 #include "windowsservice.h"
-
+#include "logutil.h"
 #include <windows.h>
+#include <filesystem>
+#include <direct.h>
 
 #define UNUSED(x) (void)(x)
 
@@ -149,7 +151,7 @@ cleanup:
 WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> thread) {
   _name=name;
   _thread=thread;
-
+  
 	SERVICE_TABLE_ENTRYA dispatchTable[] =
 	{
 		{ (const LPSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTIONA)service_main },
@@ -157,6 +159,117 @@ WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> t
 	};
 
 	StartServiceCtrlDispatcherA(dispatchTable);
+}
+
+
+bool WindowsService::Install(std::string name, std::string description) {
+	WindowsService::Uninstall(name);
+
+    SC_HANDLE schSCManager;
+    SC_HANDLE schService;
+    char szPath[MAX_PATH];
+
+    if( !GetModuleFileNameA( nullptr, szPath, MAX_PATH ) ) {
+        LOG(std::cout, "Cannot install service (" << GetLastError() << ")");
+        return false;
+    }
+
+    // Get a handle to the SCM database.  
+    schSCManager = OpenSCManagerA( 
+        NULL,                    // local computer
+        NULL,                    // ServicesActive database 
+        SC_MANAGER_ALL_ACCESS);  // full access rights 
+ 
+    if (NULL == schSCManager) {
+        LOG(std::cout, "OpenSCManager failed (" << GetLastError() << ")");
+        return false;
+    }
+
+    // Create the service
+    schService = CreateServiceA( 
+        schSCManager,              // SCM database 
+        name.c_str(),                   // name of service 
+        description.c_str(),                   // service name to display 
+        SERVICE_ALL_ACCESS,        // desired access 
+        SERVICE_WIN32_OWN_PROCESS, // service type 
+        SERVICE_AUTO_START,      // start type 
+        SERVICE_ERROR_NORMAL,      // error control type 
+        szPath,                    // path to service's binary 
+        NULL,                      // no load ordering group 
+        NULL,                      // no tag identifier 
+        NULL,                      // no dependencies 
+        NULL,                      // LocalSystem account 
+        NULL);                     // no password 
+ 
+    if (schService == NULL) {
+        LOG(std::cout,"CreateService failed (" << GetLastError() << ")");
+        CloseServiceHandle(schSCManager);
+        return false;
+    }
+
+	if (!StartServiceA(schService,0,nullptr)) {
+        LOG(std::cout,"StartService failed (" << GetLastError() << ")");
+        CloseServiceHandle(schSCManager);
+        return false;
+	}
+
+    CloseServiceHandle(schService); 
+    CloseServiceHandle(schSCManager);
+
+	return true;
+}
+
+bool WindowsService::Uninstall(std::string name) {
+    SC_HANDLE schSCManager;
+    SC_HANDLE schService;
+    SERVICE_STATUS ssStatus; 
+
+    // Get a handle to the SCM database. 
+    schSCManager = OpenSCManagerA( 
+        NULL,                    // local computer
+        NULL,                    // ServicesActive database 
+        SC_MANAGER_ALL_ACCESS);  // full access rights 
+ 
+    if (NULL == schSCManager) 
+    {
+		LOG(std::cout, "OpenSCManager failed (" << GetLastError() << ")");
+        return false;
+    }
+
+    // Get a handle to the service.
+    schService = OpenServiceA( 
+        schSCManager,       // SCM database 
+        name.c_str(),          // name of service 
+        DELETE);            // need delete access 
+ 
+    if (schService == NULL)
+    { 
+        LOG(std::cout, "OpenService failed (" << GetLastError() << ")");
+        CloseServiceHandle(schSCManager);
+        return (GetLastError()==0 || GetLastError()==ERROR_SERVICE_DOES_NOT_EXIST);
+    }
+
+    // Delete the service.
+    if (! DeleteService(schService) ) 
+    {
+		LOG(std::cout, "DeleteService failed (" << GetLastError() << ")");
+		CloseServiceHandle(schService); 
+		CloseServiceHandle(schSCManager);
+        return false;
+    }
+ 
+    CloseServiceHandle(schService); 
+    CloseServiceHandle(schSCManager);
+
+	return true;
+}
+
+void WindowsService::ChdirToBin() {	
+    char szPath[MAX_PATH];
+    if( GetModuleFileNameA( nullptr, szPath, MAX_PATH ) ) {
+		std::filesystem::path module(szPath);
+		_chdir(module.parent_path().string().c_str());
+    }
 }
 
 }
