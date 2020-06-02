@@ -41,7 +41,7 @@ ApfdService::~ApfdService() {
 std::string ApfdService::translateIp(const std::string& ip) {
   if (ip=="any") return "0.0.0.0";
   if (ip=="localhost") return "127.0.0.1";
-  if (WslUtil::isWsl(ip)) return WslUtil::getWslIp(ip);
+  if (wsl::WslUtil::isWsl(ip)) return wsl::WslUtil::getWslIp(ip);
   return ip;
 }
 
@@ -65,8 +65,8 @@ void ApfdService::closePort() {
 }
 
 void ApfdService::execStart() {  
-  if (WslUtil::isWsl(localIp)) {
-    std::string vmName = WslUtil::getWslName(localIp);
+  if (wsl::WslUtil::isWsl(localIp)) {
+    std::string vmName = wsl::WslUtil::getWslName(localIp);
     common::ExecUtil::Run("wsl -d "+vmName+" -- /bin/bash -c \""+startCommand+"\"");
   } else {
     common::ExecUtil::Run(startCommand);

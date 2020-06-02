@@ -10,11 +10,15 @@ add_executable(apfd
   apfdworker.h
   apfdservice.cc
   apfdservice.h
-  wslutil.cc
-  wslutil.h
 )
 
 target_link_libraries(apfd
   common
   cJSON
 )
+
+if (WIN32)
+target_link_libraries(apfd
+  wsl
+)
+endif()
