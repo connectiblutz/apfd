@@ -18,8 +18,3 @@ target_link_libraries(apfd
   common
   cJSON
 )
-target_compile_options(apfd PRIVATE
- -Werror
- -Wall
- -Wextra
-)

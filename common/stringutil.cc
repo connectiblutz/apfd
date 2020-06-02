@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <codecvt>
 
 namespace apfd::common {
 
@@ -41,6 +42,18 @@ std::vector<std::string> StringUtil::split(const std::string& s, const char toke
   }
   output.push_back(s.substr(prev_pos, pos-prev_pos));
   return output;
+}
+
+std::wstring StringUtil::toWide(const std::string& s) {
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  std::wstring wide = converter.from_bytes(s);
+  return wide;
+}
+
+std::string StringUtil::toNarrow(const std::wstring& s) {
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  std::string narrow = converter.to_bytes(s);
+  return narrow;
 }
 
 }

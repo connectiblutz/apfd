@@ -3,6 +3,9 @@
 #include "stringutil.h"
 #include "logutil.h"
 
+#include <windows.h>
+#include <wslapi.h>
+
 namespace apfd {
 
 
@@ -36,15 +39,11 @@ std::string WslUtil::getWslInterface(const std::string& ip) {
 int WslUtil::getWslVersion(const std::string& ip) {
   if (WslUtil::isWsl(ip)) {
     auto distro = WslUtil::getWslName(ip);
-    auto output = common::ExecUtil::Run("wsl -l -v");
-    auto lines = common::StringUtil::split(output,'\n');
-    for (auto line : lines) {
-      auto trimmed = common::StringUtil::trim(line);
-      if (trimmed._Starts_with(distro) || trimmed._Starts_with("* "+distro)) {
-        auto parts = common::StringUtil::split(trimmed,' ');
-        return std::atoi(parts[parts.size()-1].c_str());
-      }
-    }
+    auto wDistro = common::StringUtil::toWide(distro);
+    //unsigned long version;
+    /*if (WslGetDistributionConfiguration(wDistro.c_str(),&version,nullptr,nullptr,nullptr,nullptr)) {
+      return version;
+    }*/
     return 1;
   }
   return 0;

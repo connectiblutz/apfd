@@ -211,7 +211,6 @@ bool WindowsService::Install(std::string name, std::string description, std::str
 bool WindowsService::Uninstall(std::string name) {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
-    SERVICE_STATUS ssStatus; 
 	SERVICE_STATUS_PROCESS ssp;
 
     // Get a handle to the SCM database. 

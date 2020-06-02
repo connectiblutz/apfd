@@ -13,5 +13,7 @@ class StringUtil {
     static std::string trim(const std::string& s);
     static std::string asciiToHex(const std::string& s);
     static std::vector<std::string> split(const std::string& s, const char token);
+    static std::wstring toWide(const std::string& s);
+    static std::string toNarrow(const std::wstring& s);
 };
 }
