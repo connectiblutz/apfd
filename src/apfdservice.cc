@@ -71,7 +71,7 @@ void ApfdService::closePort() {
 void ApfdService::execStart() {  
   if (ApfdService::isWsl(localIp)) {
     std::string vmName = ApfdService::getWslDistro(localIp);
-    wsl::WslUtil::run(vmName,"/bin/bash -c \""+startCommand+"\"");
+    wsl::WslUtil::run(vmName,startCommand);
   } else {
     common::ExecUtil::Run(startCommand);
   }
