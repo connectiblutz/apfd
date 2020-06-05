@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <codecvt>
+#include <wtypes.h>
 
 namespace apfd::common {
 
@@ -54,6 +55,14 @@ std::string StringUtil::toNarrow(const std::wstring& s) {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   std::string narrow = converter.to_bytes(s);
   return narrow;
+}
+
+std::shared_ptr<wchar_t> StringUtil::toBSTR(const std::wstring& s) {
+  auto bstr = SysAllocString(s.c_str());
+  auto b = std::shared_ptr<OLECHAR>(bstr,[](BSTR b){
+    SysFreeString(b);
+  });
+  return b;
 }
 
 }

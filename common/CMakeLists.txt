@@ -22,6 +22,8 @@ add_library(common
   singleton.h
   pathutil.cc
   pathutil.h
+  firewallutil.cc
+  firewallutil.h
 )
 
 target_include_directories(common PUBLIC
