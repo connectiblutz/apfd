@@ -15,9 +15,8 @@ class ApfdService {
   private:
     static std::string translateIp(const std::string& ip);
     static bool isWsl(const std::string& ip);
-    static std::string getWslName(const std::string& ip);
+    static std::string getWslDistro(const std::string& ip);
     static std::string getWslInterface(const std::string& ip);
-    static std::string getWslIp(const std::string& ip);
   public:
     bool enabled;
     std::string name;

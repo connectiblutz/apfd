@@ -41,7 +41,11 @@ ApfdService::~ApfdService() {
 std::string ApfdService::translateIp(const std::string& ip) {
   if (ip=="any") return "0.0.0.0";
   if (ip=="localhost") return "127.0.0.1";
-  if (wsl::WslUtil::isWsl(ip)) return wsl::WslUtil::getWslIp(ip);
+  if (ApfdService::isWsl(ip)) {
+    auto distro = ApfdService::getWslDistro(ip);
+    auto intf = ApfdService::getWslInterface(ip);
+    return wsl::WslUtil::getIP(distro,intf);
+  }
   return ip;
 }
 
@@ -65,12 +69,41 @@ void ApfdService::closePort() {
 }
 
 void ApfdService::execStart() {  
-  if (wsl::WslUtil::isWsl(localIp)) {
-    std::string vmName = wsl::WslUtil::getWslName(localIp);
-    common::ExecUtil::Run("wsl -d "+vmName+" -- /bin/bash -c \""+startCommand+"\"");
+  if (ApfdService::isWsl(localIp)) {
+    std::string vmName = ApfdService::getWslDistro(localIp);
+    wsl::WslUtil::run(vmName,"/bin/bash -c \""+startCommand+"\"");
   } else {
     common::ExecUtil::Run(startCommand);
   }
+}
+
+
+bool ApfdService::isWsl(const std::string& ip) {
+  return (ip.size()>1 && ip[0]==':' && ip[1]!=':');
+}
+
+std::string ApfdService::getWslDistro(const std::string& ip) {
+  if (ApfdService::isWsl(ip)) {
+    auto parts = common::StringUtil::split(ip,':');
+    if (parts.size()>=2) return parts[1];
+  }
+  return "";
+}
+std::string ApfdService::getWslInterface(const std::string& ip) {
+  if (ApfdService::isWsl(ip)) {
+    auto distro = ApfdService::getWslDistro(ip);
+    auto parts = common::StringUtil::split(ip,':');
+    if (parts.size()>=3) return parts[2];
+    auto version = wsl::WslUtil::getVersion(distro);
+    switch (version) {
+      case 2:
+        return "eth0";
+      case 1:
+      default:
+        return "lo";
+    }
+  }
+  return "";
 }
 
 }
