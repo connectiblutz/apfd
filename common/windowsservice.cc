@@ -104,12 +104,12 @@ DWORD WINAPI service_ctrl( __in  DWORD dwCtrlCode, __in  DWORD dwEventType, __in
 void WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
 	// register our service control handler:
-  std::string name;
+  std::wstring name;
   auto s = Singleton::get<WindowsService>();
 	if (s) {
     name = s->name();
   }
-	sshStatusHandle = RegisterServiceCtrlHandlerExA(name.c_str(), service_ctrl, NULL);
+	sshStatusHandle = RegisterServiceCtrlHandlerEx(name.c_str(), service_ctrl, NULL);
 
 	if (!sshStatusHandle)
 	{
@@ -136,35 +136,35 @@ cleanup:
 	return;
 }
 
-WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> thread) {
+WindowsService::WindowsService(std::wstring name,std::shared_ptr<MessageThread> thread) {
   _name=name;
   _thread=thread;
 }
 
 void WindowsService::start() {
-	SERVICE_TABLE_ENTRYA dispatchTable[] =
+	SERVICE_TABLE_ENTRY dispatchTable[] =
 	{
-		{ (const LPSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTIONA)service_main },
+		{ (const LPWSTR) _name.c_str(), (LPSERVICE_MAIN_FUNCTION)service_main },
 		{ NULL, NULL }
 	};
-	StartServiceCtrlDispatcherA(dispatchTable);
+	StartServiceCtrlDispatcher(dispatchTable);
 }
 
 
-bool WindowsService::Install(std::string name, std::string description, std::string user, std::string password) {
+bool WindowsService::Install(std::wstring name, std::wstring description, std::wstring user, std::wstring password) {
 	WindowsService::Uninstall(name);
 
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
-    char szPath[MAX_PATH];
+    wchar_t szPath[MAX_PATH];
 
-    if( !GetModuleFileNameA( nullptr, szPath, MAX_PATH ) ) {
+    if( !GetModuleFileName( nullptr, szPath, MAX_PATH ) ) {
         LogUtil::Debug()<<"Cannot install service (" << GetLastError() << ")";
         return false;
     }
 
     // Get a handle to the SCM database.  
-    schSCManager = OpenSCManagerA( 
+    schSCManager = OpenSCManager( 
         NULL,                    // local computer
         NULL,                    // ServicesActive database 
         SC_MANAGER_ALL_ACCESS);  // full access rights 
@@ -175,7 +175,7 @@ bool WindowsService::Install(std::string name, std::string description, std::str
     }
 
     // Create the service
-    schService = CreateServiceA( 
+    schService = CreateService( 
         schSCManager,              // SCM database 
         name.c_str(),                   // name of service 
         description.c_str(),                   // service name to display 
@@ -187,7 +187,7 @@ bool WindowsService::Install(std::string name, std::string description, std::str
         NULL,                      // no load ordering group 
         NULL,                      // no tag identifier 
         NULL,                      // no dependencies 
-        user.empty()?nullptr:(".\\"+user).c_str(),                      // LocalSystem account 
+        user.empty()?nullptr:(L".\\"+user).c_str(),                      // LocalSystem account 
         password.empty()?nullptr:password.c_str());                     // no password 
  
     if (schService == NULL) {
@@ -196,7 +196,7 @@ bool WindowsService::Install(std::string name, std::string description, std::str
         return false;
     }
 
-	if (!StartServiceA(schService,0,nullptr)) {
+	if (!StartService(schService,0,nullptr)) {
         LogUtil::Debug()<<"StartService failed (" << GetLastError() << ")";
         CloseServiceHandle(schSCManager);
         return false;
@@ -208,13 +208,13 @@ bool WindowsService::Install(std::string name, std::string description, std::str
 	return true;
 }
 
-bool WindowsService::Uninstall(std::string name) {
+bool WindowsService::Uninstall(std::wstring name) {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
 	SERVICE_STATUS_PROCESS ssp;
 
     // Get a handle to the SCM database. 
-    schSCManager = OpenSCManagerA( 
+    schSCManager = OpenSCManager( 
         NULL,                    // local computer
         NULL,                    // ServicesActive database 
         SC_MANAGER_ALL_ACCESS);  // full access rights 
@@ -226,7 +226,7 @@ bool WindowsService::Uninstall(std::string name) {
     }
 
     // Get a handle to the service.
-    schService = OpenServiceA( 
+    schService = OpenService( 
         schSCManager,       // SCM database 
         name.c_str(),          // name of service 
         SERVICE_ALL_ACCESS);            // need delete access 

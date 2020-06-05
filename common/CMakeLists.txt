@@ -35,4 +35,7 @@ target_link_libraries(common PUBLIC
 set_target_properties(common PROPERTIES COMPILE_DEFINITIONS
   _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
+target_compile_definitions(common PRIVATE
+  UNICODE
+)
 endif()

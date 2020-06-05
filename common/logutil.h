@@ -28,14 +28,14 @@ class LogUtil {
   public:
     static LogLine Debug();
     ~LogUtil() { };
-    std::ostream* output() { return _output; }
+    std::wostream* output() { return _output; }
   protected:
     LogUtil(std::filesystem::path file);
-    LogUtil(std::ostream& ostream) : selfManaged(false), _output(&ostream) {};
+    LogUtil(std::wostream& ostream) : selfManaged(false), _output(&ostream) {};
     friend Singleton::Strong; 
   protected:
     bool selfManaged;
-    std::ostream* _output;
+    std::wostream* _output;
 };
 
 }

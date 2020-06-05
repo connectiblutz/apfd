@@ -5,8 +5,8 @@
 namespace apfd::common {
 
 std::filesystem::path PathUtil::binaryExe() {
-  char szPath[MAX_PATH];
-  if( GetModuleFileNameA( nullptr, szPath, MAX_PATH ) ) {
+  wchar_t szPath[MAX_PATH];
+  if( GetModuleFileName( nullptr, szPath, MAX_PATH ) ) {
     std::filesystem::path module(szPath);
     return module;
   }
@@ -17,7 +17,7 @@ std::filesystem::path PathUtil::binaryPath() {
 }
 
 void PathUtil::chdir(std::filesystem::path path) {
-		_chdir(path.string().c_str());
+		_wchdir(path.wstring().c_str());
 }
 
 }

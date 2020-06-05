@@ -3,13 +3,13 @@
 
 namespace apfd {
 
-int installAsService(std::string user, std::string password) {
-  common::WindowsService::Install("apfd","Auto Port Forward",user,password);
+int installAsService(std::wstring user, std::wstring password) {
+  common::WindowsService::Install(L"apfd",L"Auto Port Forward",user,password);
   return 0;
 }
 
 int removeAsService() {
-  common::WindowsService::Uninstall("apfd");
+  common::WindowsService::Uninstall(L"apfd");
   return 0;
 }
 

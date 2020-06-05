@@ -4,6 +4,7 @@
 #include "windowsservice.h"
 #include "logutil.h"
 #include <filesystem>
+#include <string>
 
 namespace apfd {
 
@@ -17,11 +18,11 @@ int runAsApp() {
 
 int runAsDaemon() {
   auto logPath = std::filesystem::temp_directory_path();
-  logPath/="apfd.log";
+  logPath/=L"apfd.log";
   common::Singleton::Strong::create<common::LogUtil>(logPath);
   auto runnerThread = std::make_shared<ApfdWorker>();
   auto mt = std::dynamic_pointer_cast<common::MessageThread>(runnerThread);
-  auto ws = common::Singleton::Weak::create<common::WindowsService>(std::string("apfd"),mt);
+  auto ws = common::Singleton::Weak::create<common::WindowsService>(std::wstring(L"apfd"),mt);
   ws->start();
   return 0;
 }

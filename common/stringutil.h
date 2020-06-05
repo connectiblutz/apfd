@@ -7,12 +7,12 @@ namespace apfd::common {
 
 class StringUtil {
   public:
-    static std::string reverse(const std::string& s);
-    static std::string ltrim(const std::string& s);
-    static std::string rtrim(const std::string& s);
-    static std::string trim(const std::string& s);
-    static std::string asciiToHex(const std::string& s);
-    static std::vector<std::string> split(const std::string& s, const char token);
+    static std::wstring reverse(const std::wstring& s);
+    static std::wstring ltrim(const std::wstring& s);
+    static std::wstring rtrim(const std::wstring& s);
+    static std::wstring trim(const std::wstring& s);
+    static std::wstring asciiToHex(const std::wstring& s);
+    static std::vector<std::wstring> split(const std::wstring& s, const wchar_t token);
     static std::wstring toWide(const std::string& s);
     static std::string toNarrow(const std::wstring& s);
 };

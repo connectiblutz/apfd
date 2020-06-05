@@ -6,7 +6,7 @@ namespace apfd::common {
 
 class ExecUtil {
   public:
-    static std::string Run(std::string command);
+    static std::wstring Run(std::wstring command);
 };
 
 }
