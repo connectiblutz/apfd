@@ -4,6 +4,7 @@
 #include "singleton.h"
 #include <filesystem>
 #include <memory>
+#include <mutex>
 
 namespace apfd::common {
 
@@ -13,8 +14,12 @@ class LogLine
 {
   public:
     LogLine(std::shared_ptr<LogUtil> logger);
+    LogLine(LogLine&& other);
     ~LogLine();
     std::shared_ptr<LogUtil> _logger;
+  private:
+    std::unique_lock<std::mutex> _lock;
+
 };
 
 template <typename T>
@@ -33,9 +38,11 @@ class LogUtil {
     LogUtil(std::filesystem::path file);
     LogUtil(std::wostream& ostream) : selfManaged(false), _output(&ostream) {};
     friend Singleton::Strong; 
+    friend LogLine;
   protected:
     bool selfManaged;
     std::wostream* _output;
+    std::mutex _lineMutex;
 };
 
 }

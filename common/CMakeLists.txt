@@ -24,6 +24,8 @@ add_library(common
   pathutil.h
   firewallutil.cc
   firewallutil.h
+  filewatcher.cc
+  filewatcher.h
 )
 
 target_include_directories(common PUBLIC

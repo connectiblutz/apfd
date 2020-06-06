@@ -12,10 +12,22 @@ const uint16_t ApfdWorker::MSG_READCONFIG = 1;
 const uint16_t ApfdWorker::MSG_CHECKSERVICE = 2;
 
 ApfdWorker::ApfdWorker() {
+  configPath=getConfigPath();
+  configWatcher = std::make_unique<common::FileWatcher>(configPath,[this]() {
+    post(ApfdWorker::MSG_READCONFIG);
+  });
   post(ApfdWorker::MSG_READCONFIG);
 }
 ApfdWorker::~ApfdWorker() {
   servicesList.clear();
+}
+
+std::filesystem::path ApfdWorker::getConfigPath() {
+  auto configPath = std::filesystem::path(L"apfd.json");
+  if (!std::filesystem::exists(configPath)) {
+    configPath = common::PathUtil::binaryPath() / configPath;
+  }
+  return configPath;
 }
 
 void ApfdWorker::OnMessage(common::MessageThread::Message message) {
@@ -23,10 +35,6 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
   if (message.code()==ApfdWorker::MSG_READCONFIG) {
     clear(ApfdWorker::MSG_CHECKSERVICE);
     servicesList.clear();
-    auto configPath = std::filesystem::path(L"apfd.json");
-    if (!std::filesystem::exists(configPath)) {
-      configPath = common::PathUtil::binaryPath() / configPath;
-    }
     std::wstring configStr = common::FileUtil::FileToString(configPath);
     cJSON* config = cJSON_Parse(common::StringUtil::toNarrow(configStr).c_str());
     cJSON* services = cJSON_GetObjectItem(config,"services");

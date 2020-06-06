@@ -19,6 +19,7 @@ LogLine LogUtil::Debug() {
 
 
 LogLine::LogLine(std::shared_ptr<LogUtil> logger) : _logger (logger) {
+  _lock=std::unique_lock<std::mutex>(logger->_lineMutex);
   time_t now = time(0);
   struct tm p;
   localtime_s(&p,&now);
@@ -27,8 +28,14 @@ LogLine::LogLine(std::shared_ptr<LogUtil> logger) : _logger (logger) {
   *_logger->output() << str << L" : ";
 }
 
+LogLine::LogLine(LogLine&& other) {
+  _logger.swap(other._logger);
+  _lock.swap(other._lock);
+}
+
 LogLine::~LogLine () { 
-  *_logger->output() << std::endl;
+  if (_logger) *_logger->output() << std::endl;
+  if (_lock) _lock.unlock();
 }
 
 }
