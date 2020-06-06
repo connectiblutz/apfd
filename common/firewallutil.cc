@@ -1,9 +1,7 @@
 #include "firewallutil.h"
 #include <stdio.h>
 #include "stringutil.h"
-#include <memory>
 #include "logutil.h"
-#include <functional>
 
 #pragma comment( lib, "ole32.lib" )
 #pragma comment( lib, "oleaut32.lib" )

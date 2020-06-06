@@ -29,8 +29,6 @@ class ApfdService {
     std::wstring startCommand;
   private:
     bool opened;
-  private:
-    static const std::wstring POWERSHELL_PREFIX;
 };
 
 }

@@ -7,8 +7,6 @@
 
 namespace apfd {
 
-const std::wstring ApfdService::POWERSHELL_PREFIX=L"powershell -ExecutionPolicy Bypass -Command ";
-
     bool opened;
 ApfdService::ApfdService(cJSON* config) : enabled(false), autoStart(false), opened(false) {
   cJSON* enabled = cJSON_GetObjectItem(config,"enabled");
@@ -59,14 +57,11 @@ bool ApfdService::isReachable() {
 void ApfdService::openPort() {
   opened=true;
   common::FirewallUtil::Open(name,common::FirewallUtil::Direction::ANY,protocol,localIp,localPort,remoteIp,remotePort);
-  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+L"New-NetFireWallRule -DisplayName 'APFD "+name+L"' -Direction Outbound -LocalPort "+std::to_wstring(remotePort)+L" -Action Allow -Protocol "+protocol);
-  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+L"New-NetFireWallRule -DisplayName 'APFD "+name+L"' -Direction Inbound -LocalPort "+std::to_wstring(remotePort)+L" -Action Allow -Protocol "+protocol);  
   common::ExecUtil::Run(L"netsh interface portproxy add v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" connectport="+std::to_wstring(localPort)+L" connectaddress="+ApfdService::translateIp(localIp)+L" protocol="+protocol);
 }
 
 void ApfdService::closePort() {
   common::FirewallUtil::Close(name,common::FirewallUtil::Direction::ANY,protocol,localIp,localPort,remoteIp,remotePort);
-  common::ExecUtil::Run(ApfdService::POWERSHELL_PREFIX+L"Remove-NetFireWallRule -DisplayName 'APFD "+name+L"' ");  
   common::ExecUtil::Run(L"netsh interface portproxy delete v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" protocol="+protocol);
   opened=false;
 }
