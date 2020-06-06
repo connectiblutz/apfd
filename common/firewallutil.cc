@@ -106,6 +106,52 @@ void FirewallUtil::Close(const std::wstring& name,Direction direction, const std
     FirewallUtil::Close(name,Direction::OUTBOUND,protocol,localIp,localPort,remoteIp,remotePort);
     return;
   }
+
+  HRESULT hr = S_OK;
+
+  // Initialize COM.
+  hr = CoInitializeEx(0, COINIT_APARTMENTTHREADED);
+  // Ignore RPC_E_CHANGED_MODE; this just means that COM has already been
+  // initialized with a different mode. Since we don't care what the mode is,
+  // we'll just use the existing mode.
+  if (FAILED(hr) && hr != RPC_E_CHANGED_MODE)
+  {
+    common::LogUtil::Debug()<<"CoInitializeEx failed: "<< hr;
+  } else {    
+    INetFwPolicy2 *pNetFwPolicy2 = NULL;
+
+    // Retrieve INetFwPolicy2
+    hr = CoCreateInstance(__uuidof(NetFwPolicy2), NULL, CLSCTX_INPROC_SERVER, __uuidof(INetFwPolicy2), (void**)&pNetFwPolicy2);
+    if (FAILED(hr))
+    {
+      common::LogUtil::Debug()<<"CoCreateInstance failed:"<< hr;
+    }
+    else {
+      auto spNetFwPolicy=std::unique_ptr<INetFwPolicy2,std::function<void(INetFwPolicy2*)>>(pNetFwPolicy2,[](INetFwPolicy2* p) {
+        p->Release();
+      });
+
+      // Retrieve INetFwRules
+      INetFwRules *pFwRules = NULL;
+      hr = pNetFwPolicy2->get_Rules(&pFwRules);
+      if (FAILED(hr))
+      {
+        common::LogUtil::Debug()<<"get_Rules failed:"<< hr;
+      } else {
+        auto spFwRules=std::unique_ptr<INetFwRules,std::function<void(INetFwRules*)>>(pFwRules,[](INetFwRules* p) {
+          p->Release();
+        });
+
+        auto bstrRuleName = StringUtil::toBSTR(L"APFD "+name);
+
+        hr = pFwRules->Remove(bstrRuleName.get());
+        if (FAILED(hr)) {
+          common::LogUtil::Debug()<<"Firewall Rule Remove failed: "<<hr;
+        }
+      }
+    }
+    CoUninitialize();
+  }
 }
 
 }
