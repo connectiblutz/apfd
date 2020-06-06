@@ -3,7 +3,6 @@
 #include "fileutil.h"
 #include "cJSON.h"
 #include "logutil.h"
-#include "apfdservice.h"
 #include "pathutil.h"
 #include "stringutil.h"
 
@@ -15,11 +14,15 @@ const uint16_t ApfdWorker::MSG_CHECKSERVICE = 2;
 ApfdWorker::ApfdWorker() {
   post(ApfdWorker::MSG_READCONFIG);
 }
+ApfdWorker::~ApfdWorker() {
+  servicesList.clear();
+}
 
 void ApfdWorker::OnMessage(common::MessageThread::Message message) {
   common::LogUtil::Debug()<<"received message "<<message.code();
   if (message.code()==ApfdWorker::MSG_READCONFIG) {
     clear(ApfdWorker::MSG_CHECKSERVICE);
+    servicesList.clear();
     auto configPath = std::filesystem::path(L"apfd.json");
     if (!std::filesystem::exists(configPath)) {
       configPath = common::PathUtil::binaryPath() / configPath;
@@ -32,7 +35,10 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
       for (int i = 0; i < size; i++) {
         cJSON* serviceConfig = cJSON_GetArrayItem(services,i);
         auto service = std::make_shared<ApfdService>(serviceConfig);
-        post(Message(ApfdWorker::MSG_CHECKSERVICE,service));
+        if (service->enabled) {
+          servicesList.push_back(service);
+          post(Message(ApfdWorker::MSG_CHECKSERVICE,service));
+        }
       }
     }
     cJSON_Delete(config);
