@@ -3,7 +3,7 @@
 #include "socketutil.h"
 #include "stringutil.h"
 #include "wslutil.h"
-#include "firewallutil.h"
+#include "firewallcontrol.h"
 
 namespace apfd {
 
@@ -57,12 +57,14 @@ bool ApfdService::isReachable() {
 void ApfdService::openPort() {
   closePort();
   opened=true;
-  common::FirewallUtil::Open(name,common::FirewallUtil::Direction::ANY,protocol,localIp,localPort,remoteIp,remotePort);
+  auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
+  fc.open();
   common::ExecUtil::Run(L"netsh interface portproxy add v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" connectport="+std::to_wstring(localPort)+L" connectaddress="+ApfdService::translateIp(localIp)+L" protocol="+protocol);
 }
 
 void ApfdService::closePort() {
-  common::FirewallUtil::Close(name,common::FirewallUtil::Direction::ANY,protocol,localIp,localPort,remoteIp,remotePort);
+  auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
+  fc.close();
   common::ExecUtil::Run(L"netsh interface portproxy delete v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" protocol="+protocol);
   opened=false;
 }

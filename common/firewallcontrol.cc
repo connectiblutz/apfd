@@ -1,4 +1,4 @@
-#include "firewallutil.h"
+#include "firewallcontrol.h"
 #include <stdio.h>
 #include "stringutil.h"
 #include "logutil.h"
@@ -8,14 +8,22 @@
 
 namespace apfd::common {
 
-void FirewallUtil::Open(const std::wstring& name,Direction direction, const std::wstring& protocol, const std::wstring& localIp, uint16_t localPort, const std::wstring& remoteIp, uint16_t remotePort) {
+FirewallControl::FirewallControl(const std::wstring& name, Direction direction, const std::wstring& protocol, const std::wstring& remoteIp, uint16_t remotePort) 
+  : _name(name), _direction(direction), _protocol(protocol), _remoteIp(remoteIp), _remotePort(remotePort)
+{
+
+}
+void FirewallControl::open() {
+  open(_direction);
+}
+void FirewallControl::open(Direction direction) {
   if (direction==Direction::ANY) {
-    FirewallUtil::Open(name,Direction::INBOUND,protocol,localIp,localPort,remoteIp,remotePort);
-    FirewallUtil::Open(name,Direction::OUTBOUND,protocol,localIp,localPort,remoteIp,remotePort);
+    open(Direction::INBOUND);
+    open(Direction::OUTBOUND);
     return;
   }
 
-  FirewallUtil::CommonSetup([name,direction,protocol,remotePort](std::shared_ptr<INetFwRules> pFwRules) {
+  commonSetup([this,direction](std::shared_ptr<INetFwRules> pFwRules) {
     HRESULT hr = S_OK;
     // Create a new Firewall Rule object.
     INetFwRule *pFwRule = NULL;
@@ -28,15 +36,15 @@ void FirewallUtil::Open(const std::wstring& name,Direction direction, const std:
         p->Release();
       });
 
-      auto bstrRuleName = StringUtil::toBSTR(L"APFD "+name);
+      auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name);
       auto bstrRuleGroup = StringUtil::toBSTR(L"APFD");
-      auto bstrRuleLPorts = StringUtil::toBSTR(std::to_wstring(remotePort));
+      auto bstrRuleLPorts = StringUtil::toBSTR(std::to_wstring(_remotePort));
 
       // Populate the Firewall Rule object
       pFwRule->put_Name(bstrRuleName.get());
-      if (protocol==L"tcp") {
+      if (_protocol==L"tcp") {
         pFwRule->put_Protocol(NET_FW_IP_PROTOCOL_TCP);
-      } else if (protocol==L"udp") {
+      } else if (_protocol==L"udp") {
         pFwRule->put_Protocol(NET_FW_IP_PROTOCOL_UDP);
       }
       pFwRule->put_LocalPorts(bstrRuleLPorts.get());
@@ -60,16 +68,10 @@ void FirewallUtil::Open(const std::wstring& name,Direction direction, const std:
   });
 }
 
-void FirewallUtil::Close(const std::wstring& name,Direction direction, const std::wstring& protocol, const std::wstring& localIp, uint16_t localPort, const std::wstring& remoteIp, uint16_t remotePort) {
-  if (direction==Direction::ANY) {
-    FirewallUtil::Close(name,Direction::INBOUND,protocol,localIp,localPort,remoteIp,remotePort);
-    FirewallUtil::Close(name,Direction::OUTBOUND,protocol,localIp,localPort,remoteIp,remotePort);
-    return;
-  }
-
-  FirewallUtil::CommonSetup([name](std::shared_ptr<INetFwRules> pFwRules) {
+void FirewallControl::close() {
+  commonSetup([this](std::shared_ptr<INetFwRules> pFwRules) {
     HRESULT hr = S_OK;
-    auto bstrRuleName = StringUtil::toBSTR(L"APFD "+name);
+    auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name);
     hr = pFwRules->Remove(bstrRuleName.get());
     if (FAILED(hr)) {
       common::LogUtil::Debug()<<"Firewall Rule Remove failed: "<<hr;
@@ -78,7 +80,7 @@ void FirewallUtil::Close(const std::wstring& name,Direction direction, const std
 }
 
 
-void FirewallUtil::CommonSetup(std::function<void(std::shared_ptr<INetFwRules>)> cb) {
+void FirewallControl::commonSetup(std::function<void(std::shared_ptr<INetFwRules>)> cb) {
   HRESULT hr = S_OK;
 
   // Initialize COM.
