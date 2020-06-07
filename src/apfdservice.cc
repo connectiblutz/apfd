@@ -55,6 +55,7 @@ bool ApfdService::isReachable() {
 }
 
 void ApfdService::openPort() {
+  closePort();
   opened=true;
   common::FirewallUtil::Open(name,common::FirewallUtil::Direction::ANY,protocol,localIp,localPort,remoteIp,remotePort);
   common::ExecUtil::Run(L"netsh interface portproxy add v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" connectport="+std::to_wstring(localPort)+L" connectaddress="+ApfdService::translateIp(localIp)+L" protocol="+protocol);
