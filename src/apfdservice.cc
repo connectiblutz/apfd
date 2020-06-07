@@ -4,6 +4,7 @@
 #include "stringutil.h"
 #include "wslutil.h"
 #include "firewallcontrol.h"
+#include "servicecontrol.h"
 
 namespace apfd {
 
@@ -31,6 +32,11 @@ ApfdService::ApfdService(cJSON* config) : enabled(false), autoStart(false), open
   cJSON* startCommand = cJSON_GetObjectItem(config,"startCommand");
   if (autoStart && cJSON_IsBool(autoStart)) this->autoStart=cJSON_IsTrue(autoStart);
   if (startCommand && cJSON_IsString(startCommand)) this->startCommand = common::StringUtil::toWide(cJSON_GetStringValue(startCommand));
+
+  if (this->enabled && ApfdService::isWsl(this->localIp)) {
+    auto service = common::ServiceControl(L"vmcompute");
+    service.start();
+  }
 }
 
 ApfdService::~ApfdService() {
