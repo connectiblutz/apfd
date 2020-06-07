@@ -26,6 +26,8 @@ add_library(common
   firewallutil.h
   filewatcher.cc
   filewatcher.h
+  servicecontrol.cc
+  servicecontrol.h
 )
 
 target_include_directories(common PUBLIC

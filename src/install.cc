@@ -1,15 +1,20 @@
 #include "install.h"
-#include "windowsservice.h"
+#include "servicecontrol.h"
 
 namespace apfd {
 
 int installAsService(std::wstring user, std::wstring password) {
-  common::WindowsService::Install(L"apfd",L"Auto Port Forward",user,password);
+  auto service = common::ServiceControl(L"apfd");
+  service.setDescription(L"Auto Port Forward");
+  service.install(user,password);
+  service.start();
   return 0;
 }
 
 int removeAsService() {
-  common::WindowsService::Uninstall(L"apfd");
+  auto service = common::ServiceControl(L"apfd");
+  service.stop();
+  service.uninstall();
   return 0;
 }
 
