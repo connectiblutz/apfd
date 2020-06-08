@@ -36,7 +36,13 @@ void FirewallControl::open(Direction direction) {
         p->Release();
       });
 
-      auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name);
+      auto nameEnd = L"";
+      if (direction==Direction::INBOUND) {
+          nameEnd=L" (IN)";
+      } else if (direction==Direction::OUTBOUND) {
+          nameEnd=L" (OUT)";
+      }
+      auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name+nameEnd);
       auto bstrRuleGroup = StringUtil::toBSTR(L"APFD");
       auto bstrRuleLPorts = StringUtil::toBSTR(std::to_wstring(_remotePort));
 
@@ -69,9 +75,23 @@ void FirewallControl::open(Direction direction) {
 }
 
 void FirewallControl::close() {
-  commonSetup([this](std::shared_ptr<INetFwRules> pFwRules) {
+  close(_direction);
+}
+void FirewallControl::close(Direction direction) {
+  if (direction==Direction::ANY) {
+    close(Direction::INBOUND);
+    close(Direction::OUTBOUND);
+    return;
+  }
+  commonSetup([this,direction](std::shared_ptr<INetFwRules> pFwRules) {
     HRESULT hr = S_OK;
-    auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name);
+    auto nameEnd = L"";
+    if (direction==Direction::INBOUND) {
+        nameEnd=L" (IN)";
+    } else if (direction==Direction::OUTBOUND) {
+        nameEnd=L" (OUT)";
+    }
+    auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name+nameEnd);
     hr = pFwRules->Remove(bstrRuleName.get());
     if (FAILED(hr)) {
       common::LogUtil::Debug()<<"Firewall Rule Remove failed: "<<hr;

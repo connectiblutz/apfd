@@ -18,6 +18,7 @@ namespace apfd::common {
     private:
       void commonSetup(std::function<void(std::shared_ptr<INetFwRules>)> cb);
       void open(Direction direction);
+      void close(Direction direction);
       std::wstring _name;
       Direction _direction;
       std::wstring _protocol;
