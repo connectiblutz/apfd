@@ -1,10 +1,10 @@
 #include "apfdservice.h"
-#include "executil.h"
-#include "socketutil.h"
-#include "stringutil.h"
+#include "common/executil.h"
+#include "common/socketutil.h"
+#include "common/stringutil.h"
 #include "wsl/wslutil.h"
-#include "firewallcontrol.h"
-#include "servicecontrol.h"
+#include "common/firewallcontrol.h"
+#include "common/servicecontrol.h"
 
 namespace apfd {
 

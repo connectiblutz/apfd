@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <memory>
 
-namespace apfd::common {
+namespace common {
 
 class ServiceControl {
   public:

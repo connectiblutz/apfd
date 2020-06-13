@@ -2,7 +2,7 @@
 
 #include "install.h"
 #include "run.h"
-#include "stringutil.h"
+#include "common/stringutil.h"
 
 #include <cstring>
 

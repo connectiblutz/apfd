@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <netfw.h>
 
-namespace apfd::common {
+namespace common {
   class FirewallControl {
     public:
       enum Direction {

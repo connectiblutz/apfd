@@ -1,9 +1,9 @@
-#include "filewatcher.h"
-#include "logutil.h"
+#include "common/filewatcher.h"
+#include "common/logutil.h"
 #include <windows.h>
 #include <fileapi.h>
 
-namespace apfd::common {
+namespace common {
 
 FileWatcher::FileWatcher(std::filesystem::path watchedFile, std::function<void()> onChange) : _enabled(true), _watchedFile(watchedFile), _onChange(onChange) {
   _t=std::thread(&FileWatcher::run,this);

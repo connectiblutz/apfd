@@ -1,37 +1,40 @@
 cmake_minimum_required(VERSION 3.13)
 
-add_library(common
-  messagethread.cc
-  messagethread.h
-  windowsservice.cc
-  windowsservice.h
-  consolehandler.cc
-  consolehandler.h
-  fileutil.cc
-  fileutil.h
-  logutil.cc
-  logutil.h
-  priorityqueueex.h
-  executil.cc
-  executil.h
-  socketutil.cc
-  socketutil.h
-  stringutil.cc
-  stringutil.h
-  singleton.cc
-  singleton.h
-  pathutil.cc
-  pathutil.h
-  firewallcontrol.cc
-  firewallcontrol.h
-  filewatcher.cc
-  filewatcher.h
-  servicecontrol.cc
-  servicecontrol.h
+add_library(common)
+target_sources(common
+  PRIVATE
+    src/messagethread.cc
+    src/windowsservice.cc
+    src/consolehandler.cc
+    src/fileutil.cc
+    src/logutil.cc
+    src/executil.cc
+    src/socketutil.cc
+    src/stringutil.cc
+    src/singleton.cc
+    src/pathutil.cc
+    src/firewallcontrol.cc
+    src/filewatcher.cc
+    src/servicecontrol.cc
+  PUBLIC
+    include/common/messagethread.h
+    include/common/windowsservice.h
+    include/common/consolehandler.h
+    include/common/fileutil.h
+    include/common/logutil.h
+    include/common/priorityqueueex.h
+    include/common/executil.h
+    include/common/socketutil.h
+    include/common/stringutil.h
+    include/common/singleton.h
+    include/common/pathutil.h
+    include/common/firewallcontrol.h
+    include/common/filewatcher.h
+    include/common/servicecontrol.h
 )
 
 target_include_directories(common PUBLIC
-  .
+  include/
 )
 
 if (WIN32)

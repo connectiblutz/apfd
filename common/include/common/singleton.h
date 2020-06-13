@@ -4,7 +4,7 @@
 #include <memory>
 #include <typeindex>
 
-namespace apfd::common {
+namespace common {
 
 class Singleton {
   public:  

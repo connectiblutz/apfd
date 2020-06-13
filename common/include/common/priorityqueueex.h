@@ -3,7 +3,7 @@
 #include <queue>
 #include <vector>
 
-namespace apfd::common {
+namespace common {
 
 template<class T,
     class Container = std::vector<T>,

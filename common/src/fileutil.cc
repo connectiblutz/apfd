@@ -1,9 +1,9 @@
-#include "fileutil.h"
+#include "common/fileutil.h"
 
 #include <fstream>
 #include <sstream>
 
-namespace apfd::common {
+namespace common {
 
 
 std::string FileUtil::FileToString(std::filesystem::path file) {

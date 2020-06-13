@@ -1,8 +1,8 @@
-#include "logutil.h"
+#include "common/logutil.h"
 #include <fstream>
 #include <ctime>
 
-namespace apfd::common {
+namespace common {
 
 LogUtil::LogUtil(std::filesystem::path file) : selfManaged(true) {  
   _output = new std::ofstream(file.wstring());

@@ -1,4 +1,4 @@
-#include "stringutil.h"
+#include "common/stringutil.h"
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -6,7 +6,7 @@
 #include <codecvt>
 #include <wtypes.h>
 
-namespace apfd::common {
+namespace common {
 
 std::string StringUtil::reverse(const std::string& s) {
   return std::string(s.rbegin(),s.rend());

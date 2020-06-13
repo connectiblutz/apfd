@@ -1,9 +1,9 @@
-#include "servicecontrol.h"
-#include "logutil.h"
-#include "servicecontrol.h"
-#include "stringutil.h"
+#include "common/servicecontrol.h"
+#include "common/logutil.h"
+#include "common/servicecontrol.h"
+#include "common/stringutil.h"
 
-namespace apfd::common {
+namespace common {
 
 ServiceControl::ServiceControl(const std::string& name) : _name(name) {
 

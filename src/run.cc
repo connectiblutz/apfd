@@ -1,8 +1,8 @@
 #include "run.h"
 #include "apfdworker.h"
-#include "consolehandler.h"
-#include "windowsservice.h"
-#include "logutil.h"
+#include "common/consolehandler.h"
+#include "common/windowsservice.h"
+#include "common/logutil.h"
 #include <filesystem>
 #include <string>
 

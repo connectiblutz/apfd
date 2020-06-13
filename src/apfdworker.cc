@@ -1,10 +1,10 @@
 #include "apfdworker.h"
 #include <iostream>
-#include "fileutil.h"
+#include "common/fileutil.h"
 #include "cJSON.h"
-#include "logutil.h"
-#include "pathutil.h"
-#include "stringutil.h"
+#include "common/logutil.h"
+#include "common/pathutil.h"
+#include "common/stringutil.h"
 
 namespace apfd {
 

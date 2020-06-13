@@ -1,12 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include "singleton.h"
+#include "common/singleton.h"
 #include <filesystem>
 #include <memory>
 #include <mutex>
 
-namespace apfd::common {
+namespace common {
 
 class LogUtil;
 

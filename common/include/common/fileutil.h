@@ -3,7 +3,7 @@
 #include <string>
 #include <filesystem>
 
-namespace apfd::common {
+namespace common {
 
 class FileUtil {
   public:

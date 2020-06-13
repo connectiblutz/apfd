@@ -1,10 +1,10 @@
-#include "socketutil.h"
-#include "logutil.h"
+#include "common/socketutil.h"
+#include "common/logutil.h"
 #include "winsock2.h"
 #include "ws2tcpip.h"
-#include "stringutil.h"
+#include "common/stringutil.h"
 
-namespace apfd::common {
+namespace common {
 
 Socket::WSAInit::WSAInit() { 
   WSADATA wsaData;

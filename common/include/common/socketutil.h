@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-namespace apfd::common {
+namespace common {
 
 class Socket {
   public:

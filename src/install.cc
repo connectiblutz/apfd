@@ -1,5 +1,5 @@
 #include "install.h"
-#include "servicecontrol.h"
+#include "common/servicecontrol.h"
 
 namespace apfd {
 

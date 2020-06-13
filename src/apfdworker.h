@@ -1,10 +1,10 @@
 #pragma once
 
-#include "messagethread.h"
+#include "common/messagethread.h"
 #include "apfdservice.h"
 #include <list>
 #include <memory>
-#include "filewatcher.h"
+#include "common/filewatcher.h"
 #include <filesystem>
 
 namespace apfd {

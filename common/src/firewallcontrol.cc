@@ -1,12 +1,12 @@
-#include "firewallcontrol.h"
+#include "common/firewallcontrol.h"
 #include <stdio.h>
-#include "stringutil.h"
-#include "logutil.h"
+#include "common/stringutil.h"
+#include "common/logutil.h"
 
 #pragma comment( lib, "ole32.lib" )
 #pragma comment( lib, "oleaut32.lib" )
 
-namespace apfd::common {
+namespace common {
 
 FirewallControl::FirewallControl(const std::string& name, Direction direction, const std::string& protocol, const std::string& remoteIp, uint16_t remotePort) 
   : _name(name), _direction(direction), _protocol(protocol), _remoteIp(remoteIp), _remotePort(remotePort)

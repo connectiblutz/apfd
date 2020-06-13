@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-namespace apfd::common {
+namespace common {
 
 class StringUtil {
   public:

@@ -4,7 +4,7 @@
 #include <thread>
 #include <functional>
 
-namespace apfd::common {
+namespace common {
 
 class FileWatcher {
   public:
