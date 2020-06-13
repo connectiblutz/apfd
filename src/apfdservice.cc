@@ -2,7 +2,7 @@
 #include "executil.h"
 #include "socketutil.h"
 #include "stringutil.h"
-#include "wslutil.h"
+#include "wsl/wslutil.h"
 #include "firewallcontrol.h"
 #include "servicecontrol.h"
 
