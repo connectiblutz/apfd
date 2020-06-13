@@ -3,9 +3,6 @@
 #include "common/stringutil.h"
 #include "common/logutil.h"
 
-#pragma comment( lib, "ole32.lib" )
-#pragma comment( lib, "oleaut32.lib" )
-
 namespace common {
 
 FirewallControl::FirewallControl(const std::string& name, Direction direction, const std::string& protocol, const std::string& remoteIp, uint16_t remotePort) 

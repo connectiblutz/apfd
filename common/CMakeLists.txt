@@ -39,7 +39,9 @@ target_include_directories(common PUBLIC
 
 if (WIN32)
 target_link_libraries(common PUBLIC
-  Ws2_32
+  Ws2_32 # socketutil
+  ole32 # firewallcontrol
+  oleaut32 # firewallcontrol
 )
 set_target_properties(common PROPERTIES COMPILE_DEFINITIONS
   _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
