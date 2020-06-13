@@ -13,20 +13,20 @@ class ApfdService {
     void openPort();
     void closePort();
   private:
-    static std::wstring translateIp(const std::wstring& ip);
-    static bool isWsl(const std::wstring& ip);
-    static std::wstring getWslDistro(const std::wstring& ip);
-    static std::wstring getWslInterface(const std::wstring& ip);
+    static std::string translateIp(const std::string& ip);
+    static bool isWsl(const std::string& ip);
+    static std::string getWslDistro(const std::string& ip);
+    static std::string getWslInterface(const std::string& ip);
   public:
     bool enabled;
-    std::wstring name;
-    std::wstring protocol;
-    std::wstring localIp;
+    std::string name;
+    std::string protocol;
+    std::string localIp;
     uint16_t localPort;
-    std::wstring remoteIp;
+    std::string remoteIp;
     uint16_t remotePort;
     bool autoStart;
-    std::wstring startCommand;
+    std::string startCommand;
   private:
     bool opened;
 };

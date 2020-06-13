@@ -5,16 +5,16 @@
 
 namespace apfd::common {
 
-std::wstring ExecUtil::Run(std::wstring command) {
-  if (command.empty()) return L"";  
+std::string ExecUtil::Run(std::string command) {
+  if (command.empty()) return "";  
   LogUtil::Debug()<<command;
   FILE   *pPipe;
-  if( !(pPipe = _wpopen( command.c_str(), L"rt" )) ) {
-   return L"";
+  if( !(pPipe = _popen( command.c_str(), "rt" )) ) {
+   return "";
   }
-  std::wostringstream buf;
-  wchar_t   psBuffer[1024];
-  while(fgetws(psBuffer, sizeof psBuffer, pPipe))
+  std::ostringstream buf;
+  char psBuffer[1024];
+  while(fgets(psBuffer, sizeof psBuffer, pPipe))
   {
     buf << psBuffer;
   }

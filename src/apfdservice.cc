@@ -20,21 +20,21 @@ ApfdService::ApfdService(cJSON* config) : enabled(false), autoStart(false), open
   cJSON* remoteIp = cJSON_GetObjectItem(config,"remoteIp");
   cJSON* remotePort = cJSON_GetObjectItem(config,"remotePort");
 
-  if (name && cJSON_IsString(name)) this->name = common::StringUtil::toWide(cJSON_GetStringValue(name));
-  if (protocol && cJSON_IsString(protocol)) this->protocol = common::StringUtil::toWide(cJSON_GetStringValue(protocol));
-  if (localIp && cJSON_IsString(localIp)) this->localIp = common::StringUtil::toWide(cJSON_GetStringValue(localIp));
+  if (name && cJSON_IsString(name)) this->name = cJSON_GetStringValue(name);
+  if (protocol && cJSON_IsString(protocol)) this->protocol = cJSON_GetStringValue(protocol);
+  if (localIp && cJSON_IsString(localIp)) this->localIp = cJSON_GetStringValue(localIp);
   if (localPort && cJSON_IsNumber(localPort)) this->localPort = cJSON_GetNumberValue(localPort);
-  if (remoteIp && cJSON_IsString(remoteIp)) this->remoteIp = common::StringUtil::toWide(cJSON_GetStringValue(remoteIp));
+  if (remoteIp && cJSON_IsString(remoteIp)) this->remoteIp = cJSON_GetStringValue(remoteIp);
   if (remotePort && cJSON_IsNumber(remotePort)) this->remotePort = cJSON_GetNumberValue(remotePort);
 
   
   cJSON* autoStart = cJSON_GetObjectItem(config,"autoStart");
   cJSON* startCommand = cJSON_GetObjectItem(config,"startCommand");
   if (autoStart && cJSON_IsBool(autoStart)) this->autoStart=cJSON_IsTrue(autoStart);
-  if (startCommand && cJSON_IsString(startCommand)) this->startCommand = common::StringUtil::toWide(cJSON_GetStringValue(startCommand));
+  if (startCommand && cJSON_IsString(startCommand)) this->startCommand = cJSON_GetStringValue(startCommand);
 
   if (this->enabled && ApfdService::isWsl(this->localIp)) {
-    auto service = common::ServiceControl(L"vmcompute");
+    auto service = common::ServiceControl("vmcompute");
     service.start();
   }
 }
@@ -43,9 +43,9 @@ ApfdService::~ApfdService() {
   if (opened) closePort();
 }
 
-std::wstring ApfdService::translateIp(const std::wstring& ip) {
-  if (ip==L"any") return L"0.0.0.0";
-  if (ip==L"localhost") return L"127.0.0.1";
+std::string ApfdService::translateIp(const std::string& ip) {
+  if (ip=="any") return "0.0.0.0";
+  if (ip=="localhost") return "127.0.0.1";
   if (ApfdService::isWsl(ip)) {
     auto distro = ApfdService::getWslDistro(ip);
     auto intf = ApfdService::getWslInterface(ip);
@@ -65,19 +65,19 @@ void ApfdService::openPort() {
   opened=true;
   auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
   fc.open();
-  common::ExecUtil::Run(L"netsh interface portproxy add v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" connectport="+std::to_wstring(localPort)+L" connectaddress="+ApfdService::translateIp(localIp)+L" protocol="+protocol);
+  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" connectport="+std::to_string(localPort)+" connectaddress="+ApfdService::translateIp(localIp)+" protocol="+protocol);
 }
 
 void ApfdService::closePort() {
   auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
   fc.close();
-  common::ExecUtil::Run(L"netsh interface portproxy delete v4tov4 listenport="+std::to_wstring(remotePort)+L" listenaddress="+ApfdService::translateIp(remoteIp)+L" protocol="+protocol);
+  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" protocol="+protocol);
   opened=false;
 }
 
 void ApfdService::execStart() {  
   if (ApfdService::isWsl(localIp)) {
-    std::wstring vmName = ApfdService::getWslDistro(localIp);
+    std::string vmName = ApfdService::getWslDistro(localIp);
     wsl::WslUtil::run(vmName,startCommand);
   } else {
     common::ExecUtil::Run(startCommand);
@@ -85,18 +85,18 @@ void ApfdService::execStart() {
 }
 
 
-bool ApfdService::isWsl(const std::wstring& ip) {
+bool ApfdService::isWsl(const std::string& ip) {
   return (ip.size()>1 && ip[0]==L':' && ip[1]!=L':');
 }
 
-std::wstring ApfdService::getWslDistro(const std::wstring& ip) {
+std::string ApfdService::getWslDistro(const std::string& ip) {
   if (ApfdService::isWsl(ip)) {
     auto parts = common::StringUtil::split(ip,':');
     if (parts.size()>=2) return parts[1];
   }
-  return L"";
+  return "";
 }
-std::wstring ApfdService::getWslInterface(const std::wstring& ip) {
+std::string ApfdService::getWslInterface(const std::string& ip) {
   if (ApfdService::isWsl(ip)) {
     auto distro = ApfdService::getWslDistro(ip);
     auto parts = common::StringUtil::split(ip,L':');
@@ -104,13 +104,13 @@ std::wstring ApfdService::getWslInterface(const std::wstring& ip) {
     auto version = wsl::WslUtil::getVersion(distro);
     switch (version) {
       case 2:
-        return L"eth0";
+        return "eth0";
       case 1:
       default:
-        return L"lo";
+        return "lo";
     }
   }
-  return L"";
+  return "";
 }
 
 }

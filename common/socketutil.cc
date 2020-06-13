@@ -2,6 +2,7 @@
 #include "logutil.h"
 #include "winsock2.h"
 #include "ws2tcpip.h"
+#include "stringutil.h"
 
 namespace apfd::common {
 
@@ -13,7 +14,7 @@ Socket::WSAInit::~WSAInit() {
   WSACleanup();
 }
 
-Socket::Socket(int af, int type, std::wstring ip, uint16_t port) : sock(0),connected(false) {
+Socket::Socket(int af, int type, std::string ip, uint16_t port) : sock(0),connected(false) {
   static WSAInit wsaInit;
 
   LogUtil::Debug()<<"creating socket to "<<ip<<":"<<port;
@@ -21,7 +22,7 @@ Socket::Socket(int af, int type, std::wstring ip, uint16_t port) : sock(0),conne
   struct sockaddr_in serv_addr;
   serv_addr.sin_family = af; 
   serv_addr.sin_port = htons(port); 
-  InetPton(AF_INET, ip.c_str(), &serv_addr.sin_addr);
+  InetPton(AF_INET, StringUtil::toWide(ip).c_str(), &serv_addr.sin_addr);
   if (0==connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr))) 
   { 
     connected=true;
@@ -33,15 +34,15 @@ Socket::~Socket() {
   if (sock) closesocket(sock);
 }
 
-TcpSocket::TcpSocket(std::wstring ip, uint16_t port) : Socket(AF_INET,SOCK_STREAM, ip, port) {  
+TcpSocket::TcpSocket(std::string ip, uint16_t port) : Socket(AF_INET,SOCK_STREAM, ip, port) {  
 }
 
 TcpSocket::~TcpSocket() {
 
 }
 
-std::shared_ptr<Socket> SocketUtil::Create(std::wstring protocol, std::wstring ip, uint16_t port) {
-  if (protocol==L"tcp") return std::dynamic_pointer_cast<Socket>(std::make_shared<TcpSocket>(ip,port));
+std::shared_ptr<Socket> SocketUtil::Create(std::string protocol, std::string ip, uint16_t port) {
+  if (protocol=="tcp") return std::dynamic_pointer_cast<Socket>(std::make_shared<TcpSocket>(ip,port));
   return std::shared_ptr<Socket>();
 }
 

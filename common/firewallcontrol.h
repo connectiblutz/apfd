@@ -12,17 +12,17 @@ namespace apfd::common {
       enum Direction {
         INBOUND, OUTBOUND, ANY
       };
-      FirewallControl(const std::wstring& name,Direction direction, const std::wstring& protocol, const std::wstring& remoteIp, uint16_t remotePort);
+      FirewallControl(const std::string& name,Direction direction, const std::string& protocol, const std::string& remoteIp, uint16_t remotePort);
       void open();
       void close();
     private:
       void commonSetup(std::function<void(std::shared_ptr<INetFwRules>)> cb);
       void open(Direction direction);
       void close(Direction direction);
-      std::wstring _name;
+      std::string _name;
       Direction _direction;
-      std::wstring _protocol;
-      std::wstring _remoteIp;
+      std::string _protocol;
+      std::string _remoteIp;
       uint16_t _remotePort;
     
   };

@@ -14,10 +14,10 @@ class WindowsService {
     auto name() { return _name; }
     auto thread() { return _thread; }
   protected:
-    WindowsService(std::wstring name, std::shared_ptr<MessageThread> thread);
+    WindowsService(std::string name, std::shared_ptr<MessageThread> thread);
     friend Singleton::Weak;
   private:
-    std::wstring _name;
+    std::string _name;
     std::shared_ptr<MessageThread> _thread;
 };
 

@@ -18,11 +18,11 @@ int runAsApp() {
 
 int runAsDaemon() {
   auto logPath = std::filesystem::temp_directory_path();
-  logPath/=L"apfd.log";
+  logPath/="apfd.log";
   common::Singleton::Strong::create<common::LogUtil>(logPath);
   auto runnerThread = std::make_shared<ApfdWorker>();
   auto mt = std::dynamic_pointer_cast<common::MessageThread>(runnerThread);
-  auto ws = common::Singleton::Weak::create<common::WindowsService>(std::wstring(L"apfd"),mt);
+  auto ws = common::Singleton::Weak::create<common::WindowsService>(std::string("apfd"),mt);
   ws->start();
   return 0;
 }

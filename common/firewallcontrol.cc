@@ -8,7 +8,7 @@
 
 namespace apfd::common {
 
-FirewallControl::FirewallControl(const std::wstring& name, Direction direction, const std::wstring& protocol, const std::wstring& remoteIp, uint16_t remotePort) 
+FirewallControl::FirewallControl(const std::string& name, Direction direction, const std::string& protocol, const std::string& remoteIp, uint16_t remotePort) 
   : _name(name), _direction(direction), _protocol(protocol), _remoteIp(remoteIp), _remotePort(remotePort)
 {
 
@@ -36,21 +36,21 @@ void FirewallControl::open(Direction direction) {
         p->Release();
       });
 
-      auto nameEnd = L"";
+      auto nameEnd = "";
       if (direction==Direction::INBOUND) {
-          nameEnd=L" (IN)";
+          nameEnd=" (IN)";
       } else if (direction==Direction::OUTBOUND) {
-          nameEnd=L" (OUT)";
+          nameEnd=" (OUT)";
       }
-      auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name+nameEnd);
-      auto bstrRuleGroup = StringUtil::toBSTR(L"APFD");
-      auto bstrRuleLPorts = StringUtil::toBSTR(std::to_wstring(_remotePort));
+      auto bstrRuleName = StringUtil::toBSTR("APFD "+_name+nameEnd);
+      auto bstrRuleGroup = StringUtil::toBSTR("APFD");
+      auto bstrRuleLPorts = StringUtil::toBSTR(std::to_string(_remotePort));
 
       // Populate the Firewall Rule object
       pFwRule->put_Name(bstrRuleName.get());
-      if (_protocol==L"tcp") {
+      if (_protocol=="tcp") {
         pFwRule->put_Protocol(NET_FW_IP_PROTOCOL_TCP);
-      } else if (_protocol==L"udp") {
+      } else if (_protocol=="udp") {
         pFwRule->put_Protocol(NET_FW_IP_PROTOCOL_UDP);
       }
       pFwRule->put_LocalPorts(bstrRuleLPorts.get());
@@ -85,13 +85,13 @@ void FirewallControl::close(Direction direction) {
   }
   commonSetup([this,direction](std::shared_ptr<INetFwRules> pFwRules) {
     HRESULT hr = S_OK;
-    auto nameEnd = L"";
+    auto nameEnd = "";
     if (direction==Direction::INBOUND) {
-        nameEnd=L" (IN)";
+        nameEnd=" (IN)";
     } else if (direction==Direction::OUTBOUND) {
-        nameEnd=L" (OUT)";
+        nameEnd=" (OUT)";
     }
-    auto bstrRuleName = StringUtil::toBSTR(L"APFD "+_name+nameEnd);
+    auto bstrRuleName = StringUtil::toBSTR("APFD "+_name+nameEnd);
     hr = pFwRules->Remove(bstrRuleName.get());
     if (FAILED(hr)) {
       common::LogUtil::Debug()<<"Firewall Rule Remove failed: "<<hr;

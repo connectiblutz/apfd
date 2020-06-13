@@ -1,9 +1,11 @@
 #include "servicecontrol.h"
 #include "logutil.h"
+#include "servicecontrol.h"
+#include "stringutil.h"
 
 namespace apfd::common {
 
-ServiceControl::ServiceControl(const std::wstring& name) : _name(name) {
+ServiceControl::ServiceControl(const std::string& name) : _name(name) {
 
 }
 
@@ -27,7 +29,7 @@ bool ServiceControl::getService(SC_HANDLE manager,std::function<bool(SC_HANDLE)>
   SC_HANDLE schService;
 
   // Get a handle to the service.
-  schService = OpenService(manager, _name.c_str(), SERVICE_ALL_ACCESS);
+  schService = OpenService(manager, StringUtil::toWide(_name).c_str(), SERVICE_ALL_ACCESS);
   if (schService == NULL)
   { 
       LogUtil::Debug()<<"OpenService failed (" << GetLastError() << ")";
@@ -39,7 +41,7 @@ bool ServiceControl::getService(SC_HANDLE manager,std::function<bool(SC_HANDLE)>
   return ret;
 }
 
-bool ServiceControl::install(const std::wstring& user, const std::wstring& password) {
+bool ServiceControl::install(const std::string& user, const std::string& password) {
 	uninstall();
 
   return getManager([this,user,password](SC_HANDLE manager) {
@@ -53,8 +55,8 @@ bool ServiceControl::install(const std::wstring& user, const std::wstring& passw
     // Create the service
     SC_HANDLE schService = CreateService( 
         manager,              // SCM database 
-        _name.c_str(),                   // name of service 
-        _description.c_str(),                   // service name to display 
+        StringUtil::toWide(_name).c_str(),                   // name of service 
+        StringUtil::toWide(_description).c_str(),                   // service name to display 
         SERVICE_ALL_ACCESS,        // desired access 
         SERVICE_WIN32_OWN_PROCESS, // service type 
         SERVICE_AUTO_START,      // start type 
@@ -63,8 +65,8 @@ bool ServiceControl::install(const std::wstring& user, const std::wstring& passw
         NULL,                      // no load ordering group 
         NULL,                      // no tag identifier 
         NULL,                      // no dependencies 
-        user.empty()?nullptr:(L".\\"+user).c_str(),                      // LocalSystem account 
-        password.empty()?nullptr:password.c_str());                     // no password 
+        user.empty()?nullptr:StringUtil::toWide(".\\"+user).c_str(),                      // LocalSystem account 
+        password.empty()?nullptr:StringUtil::toWide(password).c_str());                     // no password 
 
     if (schService == NULL) {
       LogUtil::Debug()<<"CreateService failed (" << GetLastError() << ")";

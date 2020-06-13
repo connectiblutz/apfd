@@ -7,7 +7,7 @@ namespace apfd::common {
 
 class Socket {
   public:
-    Socket(int af, int type, std::wstring ip, uint16_t port);
+    Socket(int af, int type, std::string ip, uint16_t port);
     virtual ~Socket();
     bool isConnected() const { return connected; }
   protected:
@@ -23,13 +23,13 @@ class Socket {
 
 class TcpSocket : public Socket {
   public:
-    TcpSocket(std::wstring ip, uint16_t port);
+    TcpSocket(std::string ip, uint16_t port);
     ~TcpSocket();
 };
 
 class SocketUtil {
   public:
-    static std::shared_ptr<Socket> Create(std::wstring protcol, std::wstring ip, uint16_t port);
+    static std::shared_ptr<Socket> Create(std::string protcol, std::string ip, uint16_t port);
 };
 
 }

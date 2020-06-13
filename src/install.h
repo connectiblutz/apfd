@@ -4,7 +4,7 @@
 
 namespace apfd {
 
-int installAsService(std::wstring user=L"", std::wstring password=L"");
+int installAsService(std::string user="", std::string password="");
 int removeAsService();
 
 }

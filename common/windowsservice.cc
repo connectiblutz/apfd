@@ -1,6 +1,7 @@
 #include "windowsservice.h"
 #include "logutil.h"
 #include <windows.h>
+#include "stringutil.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -104,12 +105,12 @@ DWORD WINAPI service_ctrl( __in  DWORD dwCtrlCode, __in  DWORD dwEventType, __in
 void WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
 	// register our service control handler:
-  std::wstring name;
+  std::string name;
   auto s = Singleton::get<WindowsService>();
 	if (s) {
     name = s->name();
   }
-	sshStatusHandle = RegisterServiceCtrlHandlerEx(name.c_str(), service_ctrl, NULL);
+	sshStatusHandle = RegisterServiceCtrlHandlerEx(StringUtil::toWide(name).c_str(), service_ctrl, NULL);
 
 	if (!sshStatusHandle)
 	{
@@ -136,7 +137,7 @@ cleanup:
 	return;
 }
 
-WindowsService::WindowsService(std::wstring name,std::shared_ptr<MessageThread> thread) {
+WindowsService::WindowsService(std::string name,std::shared_ptr<MessageThread> thread) {
   _name=name;
   _thread=thread;
 }

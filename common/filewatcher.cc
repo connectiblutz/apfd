@@ -20,14 +20,14 @@ void FileWatcher::run() {
  
   if (!dwChangeHandle || dwChangeHandle == INVALID_HANDLE_VALUE) 
   {
-    LogUtil::Debug()<<L"ERROR: FindFirstChangeNotification function failed. "<<GetLastError();
+    LogUtil::Debug()<<"ERROR: FindFirstChangeNotification function failed. "<<GetLastError();
     return; 
   }
 
   HANDLE hFile = CreateFile(_watchedFile.wstring().c_str(),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
   FILETIME lastWrite;
   if (!GetFileTime( hFile, nullptr, nullptr, &lastWrite)) {
-    LogUtil::Debug()<<L"ERROR: GetFileTime function failed. "<<GetLastError();
+    LogUtil::Debug()<<"ERROR: GetFileTime function failed. "<<GetLastError();
   }
 
   while (_enabled) 
@@ -39,7 +39,7 @@ void FileWatcher::run() {
       case WAIT_OBJECT_0: 
         FILETIME thisLastWrite;
         if (!GetFileTime( hFile, nullptr, nullptr, &thisLastWrite)) {
-          LogUtil::Debug()<<L"ERROR: GetFileTime function failed. "<<GetLastError();
+          LogUtil::Debug()<<"ERROR: GetFileTime function failed. "<<GetLastError();
         } else {
           if (0!=CompareFileTime(&thisLastWrite,&lastWrite)) {
             lastWrite=thisLastWrite;
@@ -48,7 +48,7 @@ void FileWatcher::run() {
         }
         if ( FindNextChangeNotification(dwChangeHandle) == FALSE )
         {
-          LogUtil::Debug()<<L"ERROR: FindNextChangeNotification function failed.";
+          LogUtil::Debug()<<"ERROR: FindNextChangeNotification function failed.";
         }
         break; 
  

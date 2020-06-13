@@ -23,7 +23,7 @@ ApfdWorker::~ApfdWorker() {
 }
 
 std::filesystem::path ApfdWorker::getConfigPath() {
-  auto configPath = std::filesystem::path(L"apfd.json");
+  auto configPath = std::filesystem::path("apfd.json");
   if (!std::filesystem::exists(configPath)) {
     configPath = common::PathUtil::binaryPath() / configPath;
   }
@@ -35,8 +35,8 @@ void ApfdWorker::OnMessage(common::MessageThread::Message message) {
   if (message.code()==ApfdWorker::MSG_READCONFIG) {
     clear(ApfdWorker::MSG_CHECKSERVICE);
     servicesList.clear();
-    std::wstring configStr = common::FileUtil::FileToString(configPath);
-    cJSON* config = cJSON_Parse(common::StringUtil::toNarrow(configStr).c_str());
+    std::string configStr = common::FileUtil::FileToString(configPath);
+    cJSON* config = cJSON_Parse(configStr.c_str());
     cJSON* services = cJSON_GetObjectItem(config,"services");
     if (services && cJSON_IsArray(services)) {
       int size = cJSON_GetArraySize(services);

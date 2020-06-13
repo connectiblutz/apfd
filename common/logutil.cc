@@ -5,13 +5,13 @@
 namespace apfd::common {
 
 LogUtil::LogUtil(std::filesystem::path file) : selfManaged(true) {  
-  _output = new std::wofstream(file.wstring());
+  _output = new std::ofstream(file.wstring());
 }
 
 LogLine LogUtil::Debug() {
   auto logger = Singleton::get<LogUtil>();
   if (!logger) {
-    logger = Singleton::Strong::create<LogUtil>(std::wcout);
+    logger = Singleton::Strong::create<LogUtil>(std::cout);
   }
   auto ll = LogLine(logger);
   return ll;
@@ -23,9 +23,9 @@ LogLine::LogLine(std::shared_ptr<LogUtil> logger) : _logger (logger) {
   time_t now = time(0);
   struct tm p;
   localtime_s(&p,&now);
-  wchar_t str[20];
-  wcsftime(str, sizeof str, L"%F-%T", &p);
-  *_logger->output() << str << L" : ";
+  char str[20];
+  strftime(str, sizeof str, "%F-%T", &p);
+  *_logger->output() << str << " : ";
 }
 
 LogLine::LogLine(LogLine&& other) {

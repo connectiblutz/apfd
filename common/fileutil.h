@@ -7,7 +7,7 @@ namespace apfd::common {
 
 class FileUtil {
   public:
-    static std::wstring FileToString(std::filesystem::path file);
+    static std::string FileToString(std::filesystem::path file);
 };
 
 }

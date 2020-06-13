@@ -33,15 +33,15 @@ class LogUtil {
   public:
     static LogLine Debug();
     ~LogUtil() { };
-    std::wostream* output() { return _output; }
+    std::ostream* output() { return _output; }
   protected:
     LogUtil(std::filesystem::path file);
-    LogUtil(std::wostream& ostream) : selfManaged(false), _output(&ostream) {};
+    LogUtil(std::ostream& ostream) : selfManaged(false), _output(&ostream) {};
     friend Singleton::Strong; 
     friend LogLine;
   protected:
     bool selfManaged;
-    std::wostream* _output;
+    std::ostream* _output;
     std::mutex _lineMutex;
 };
 
