@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra")
 
 add_subdirectory(src)
 add_subdirectory(common)
-add_subdirectory(cJSON)
+add_subdirectory(third_party/cJSON)
 if (WIN32)
 add_subdirectory(wsl)
 endif()
