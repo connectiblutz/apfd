@@ -30,17 +30,36 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
       return FALSE;
   }
 }
+#else
+void ctrlHandler(int signal) {
+  switch (signal) {
+    case SIGINT:
+    {
+      auto s = Singleton::get<ConsoleHandler>();
+      if (s) {
+        s->thread()->stop();
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
 #endif
 
 ConsoleHandler::ConsoleHandler(std::shared_ptr<MessageThread> thread) {
   _thread=thread;
 #ifdef _WIN32
   SetConsoleCtrlHandler(CtrlHandler, TRUE);
+#else
+  signal(SIGINT, ctrlHandler);
 #endif
 }
 ConsoleHandler::~ConsoleHandler() {
 #ifdef _WIN32
   SetConsoleCtrlHandler(NULL, TRUE);
+#else
+  signal(SIGINT, SIG_DFL);
 #endif
 }
 
