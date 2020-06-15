@@ -13,12 +13,14 @@ class Socket {
   protected:
     int sock;
     bool connected;
+#ifdef _WIN32
   private:
     class WSAInit {
       public:
         WSAInit();
         ~WSAInit();   
     };
+#endif
 };
 
 class TcpSocket : public Socket {

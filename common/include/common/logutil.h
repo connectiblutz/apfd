@@ -22,13 +22,6 @@ class LogLine
 
 };
 
-template <typename T>
-LogLine const & operator << (LogLine const & ll, T arg)
-{
-    *ll._logger->output() << arg;
-    return ll;
-}
-
 class LogUtil {
   public:
     static LogLine Debug();
@@ -44,5 +37,13 @@ class LogUtil {
     std::ostream* _output;
     std::mutex _lineMutex;
 };
+
+
+template <typename T>
+LogLine const & operator << (LogLine const & ll, T arg)
+{
+    *ll._logger->output() << arg;
+    return ll;
+}
 
 }

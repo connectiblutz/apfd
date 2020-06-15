@@ -3,6 +3,8 @@
 #include "common/servicecontrol.h"
 #include "common/stringutil.h"
 
+#define UNUSED(x) (void)(x)
+
 namespace common {
 
 ServiceControl::ServiceControl(const std::string& name) : _name(name) {
@@ -10,6 +12,7 @@ ServiceControl::ServiceControl(const std::string& name) : _name(name) {
 }
 
 
+#ifdef _WIN32
 bool ServiceControl::getManager(std::function<bool(SC_HANDLE)> cb) {
   SC_HANDLE schSCManager;
 
@@ -40,10 +43,12 @@ bool ServiceControl::getService(SC_HANDLE manager,std::function<bool(SC_HANDLE)>
   CloseServiceHandle(schService);
   return ret;
 }
+#endif
 
 bool ServiceControl::install(const std::string& user, const std::string& password) {
 	uninstall();
 
+#ifdef _WIN32
   return getManager([this,user,password](SC_HANDLE manager) {
     wchar_t szPath[MAX_PATH];
 
@@ -74,9 +79,15 @@ bool ServiceControl::install(const std::string& user, const std::string& passwor
     }
     return true;
   });
+#else
+  UNUSED(user);
+  UNUSED(password);
+  return false;
+#endif
 }
 
 bool ServiceControl::uninstall() {
+#ifdef _WIN32
   return getManager([this](SC_HANDLE manager) {
     return getService(manager,[](SC_HANDLE service) {
       if (! DeleteService(service) ) 
@@ -87,8 +98,12 @@ bool ServiceControl::uninstall() {
       return true;
     });
   });
+#else
+  return false;
+#endif
 }
 bool ServiceControl::stop() {
+#ifdef _WIN32
   return getManager([this](SC_HANDLE manager) {
     return getService(manager,[](SC_HANDLE service) {
       SERVICE_STATUS ssp;    
@@ -100,8 +115,12 @@ bool ServiceControl::stop() {
       return true;
     });
   });
+#else
+  return false;
+#endif
 }
 bool ServiceControl::start() {
+#ifdef _WIN32
   return getManager([this](SC_HANDLE manager) {
     return getService(manager,[](SC_HANDLE service) {
       if (!StartService(service,0,nullptr)) {
@@ -111,6 +130,9 @@ bool ServiceControl::start() {
       return true;
     });
   });
+#else
+  return false;
+#endif
 }
 
 }

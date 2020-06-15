@@ -2,6 +2,7 @@
 #include <fstream>
 #include <ctime>
 
+
 namespace common {
 
 LogUtil::LogUtil(std::filesystem::path file) : selfManaged(true) {  
@@ -22,7 +23,13 @@ LogLine::LogLine(std::shared_ptr<LogUtil> logger) : _logger (logger) {
   _lock=std::unique_lock<std::mutex>(logger->_lineMutex);
   time_t now = time(0);
   struct tm p;
+#ifdef _WIN32
   localtime_s(&p,&now);
+#elif __APPLE__
+  localtime_r(&now,&p);
+#else
+  localtime_s(&now,&p);
+#endif
   char str[20];
   strftime(str, sizeof str, "%F-%T", &p);
   *_logger->output() << str << " : ";

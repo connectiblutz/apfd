@@ -3,6 +3,8 @@
 #include "common/stringutil.h"
 #include "common/logutil.h"
 
+#define UNUSED(x) (void)(x)
+
 namespace common {
 
 FirewallControl::FirewallControl(const std::string& name, Direction direction, const std::string& protocol, const std::string& remoteIp, uint16_t remotePort) 
@@ -20,6 +22,7 @@ void FirewallControl::open(Direction direction) {
     return;
   }
 
+#ifdef _WIN32
   commonSetup([this,direction](std::shared_ptr<INetFwRules> pFwRules) {
     HRESULT hr = S_OK;
     // Create a new Firewall Rule object.
@@ -69,6 +72,9 @@ void FirewallControl::open(Direction direction) {
       }
     }
   });
+#else
+  UNUSED(_remotePort);
+#endif
 }
 
 void FirewallControl::close() {
@@ -80,6 +86,7 @@ void FirewallControl::close(Direction direction) {
     close(Direction::OUTBOUND);
     return;
   }
+#ifdef _WIN32
   commonSetup([this,direction](std::shared_ptr<INetFwRules> pFwRules) {
     HRESULT hr = S_OK;
     auto nameEnd = "";
@@ -94,9 +101,11 @@ void FirewallControl::close(Direction direction) {
       common::LogUtil::Debug()<<"Firewall Rule Remove failed: "<<hr;
     }
   });
+  #endif
 }
 
 
+#ifdef _WIN32
 void FirewallControl::commonSetup(std::function<void(std::shared_ptr<INetFwRules>)> cb) {
   HRESULT hr = S_OK;
 
@@ -140,5 +149,6 @@ void FirewallControl::commonSetup(std::function<void(std::shared_ptr<INetFwRules
   }
 
 }
+#endif
 
 }

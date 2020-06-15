@@ -3,8 +3,10 @@
 #include <string>
 #include <functional>
 #include <memory>
+#ifdef _WIN32
 #include <windows.h>
 #include <netfw.h>
+#endif
 
 namespace common {
   class FirewallControl {
@@ -16,7 +18,9 @@ namespace common {
       void open();
       void close();
     private:
+#ifdef _WIN32
       void commonSetup(std::function<void(std::shared_ptr<INetFwRules>)> cb);
+#endif
       void open(Direction direction);
       void close(Direction direction);
       std::string _name;

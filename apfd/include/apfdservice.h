@@ -14,9 +14,11 @@ class ApfdService {
     void closePort();
   private:
     static std::string translateIp(const std::string& ip);
+  #ifdef _WIN32
     static bool isWsl(const std::string& ip);
     static std::string getWslDistro(const std::string& ip);
     static std::string getWslInterface(const std::string& ip);
+  #endif
   public:
     bool enabled;
     std::string name;

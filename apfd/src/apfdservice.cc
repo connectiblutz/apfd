@@ -2,9 +2,11 @@
 #include "common/executil.h"
 #include "common/socketutil.h"
 #include "common/stringutil.h"
-#include "wsl/wslutil.h"
 #include "common/firewallcontrol.h"
+#ifdef _WIN32
 #include "common/servicecontrol.h"
+#include "wsl/wslutil.h"
+#endif
 
 namespace apfd {
 
@@ -33,10 +35,12 @@ ApfdService::ApfdService(cJSON* config) : enabled(false), autoStart(false), open
   if (autoStart && cJSON_IsBool(autoStart)) this->autoStart=cJSON_IsTrue(autoStart);
   if (startCommand && cJSON_IsString(startCommand)) this->startCommand = cJSON_GetStringValue(startCommand);
 
+#ifdef _WIN32
   if (this->enabled && ApfdService::isWsl(this->localIp)) {
     auto service = common::ServiceControl("vmcompute");
     service.start();
   }
+#endif
 }
 
 ApfdService::~ApfdService() {
@@ -46,11 +50,13 @@ ApfdService::~ApfdService() {
 std::string ApfdService::translateIp(const std::string& ip) {
   if (ip=="any") return "0.0.0.0";
   if (ip=="localhost") return "127.0.0.1";
+#ifdef _WIN32
   if (ApfdService::isWsl(ip)) {
     auto distro = ApfdService::getWslDistro(ip);
     auto intf = ApfdService::getWslInterface(ip);
     return wsl::WslUtil::getIP(distro,intf);
   }
+#endif
   return ip;
 }
 
@@ -65,26 +71,35 @@ void ApfdService::openPort() {
   opened=true;
   auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
   fc.open();
+#ifdef _WIN32
   common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" connectport="+std::to_string(localPort)+" connectaddress="+ApfdService::translateIp(localIp)+" protocol="+protocol);
+#endif
 }
 
 void ApfdService::closePort() {
   auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
   fc.close();
+#ifdef _WIN32
   common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" protocol="+protocol);
+#endif
   opened=false;
 }
 
 void ApfdService::execStart() {  
+#ifdef _WIN32
   if (ApfdService::isWsl(localIp)) {
     std::string vmName = ApfdService::getWslDistro(localIp);
     wsl::WslUtil::run(vmName,startCommand);
   } else {
+#endif
     common::ExecUtil::Run(startCommand);
+#ifdef _WIN32
   }
+#endif
 }
 
 
+#ifdef _WIN32
 bool ApfdService::isWsl(const std::string& ip) {
   return (ip.size()>1 && ip[0]==L':' && ip[1]!=L':');
 }
@@ -112,5 +127,6 @@ std::string ApfdService::getWslInterface(const std::string& ip) {
   }
   return "";
 }
+#endif
 
 }

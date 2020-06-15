@@ -1,9 +1,12 @@
 #include "common/consolehandler.h"
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 namespace common {
 
+#ifdef _WIN32
 BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
 {
   switch (fdwCtrlType)
@@ -27,13 +30,18 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
       return FALSE;
   }
 }
+#endif
 
 ConsoleHandler::ConsoleHandler(std::shared_ptr<MessageThread> thread) {
   _thread=thread;
+#ifdef _WIN32
   SetConsoleCtrlHandler(CtrlHandler, TRUE);
+#endif
 }
 ConsoleHandler::~ConsoleHandler() {
+#ifdef _WIN32
   SetConsoleCtrlHandler(NULL, TRUE);
+#endif
 }
 
 }

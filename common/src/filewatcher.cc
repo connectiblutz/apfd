@@ -1,7 +1,9 @@
 #include "common/filewatcher.h"
 #include "common/logutil.h"
+#ifdef _WIN32
 #include <windows.h>
 #include <fileapi.h>
+#endif
 
 namespace common {
 
@@ -15,6 +17,7 @@ FileWatcher::~FileWatcher() {
 }
 
 void FileWatcher::run() {
+#ifdef _WIN32
   auto parent = std::filesystem::absolute(_watchedFile).parent_path();
   HANDLE dwChangeHandle = FindFirstChangeNotification(parent.wstring().c_str(), FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE);
  
@@ -59,6 +62,7 @@ void FileWatcher::run() {
    }
 
   FindCloseChangeNotification(dwChangeHandle);
+#endif
 }
 
 }

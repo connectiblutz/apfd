@@ -4,7 +4,6 @@ add_library(common)
 target_sources(common
   PRIVATE
     src/messagethread.cc
-    src/windowsservice.cc
     src/consolehandler.cc
     src/fileutil.cc
     src/logutil.cc
@@ -18,7 +17,6 @@ target_sources(common
     src/servicecontrol.cc
   PUBLIC
     include/common/messagethread.h
-    include/common/windowsservice.h
     include/common/consolehandler.h
     include/common/fileutil.h
     include/common/logutil.h
@@ -38,6 +36,12 @@ target_include_directories(common PUBLIC
 )
 
 if (WIN32)
+target_sources(common
+  PRIVATE
+    src/windowsservice.cc
+  PUBLIC
+    include/common/windowsservice.h
+)
 target_link_libraries(common PUBLIC
   Ws2_32 # socketutil
   ole32 # firewallcontrol

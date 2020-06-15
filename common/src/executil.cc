@@ -3,13 +3,18 @@
 #include <sstream>
 #include "common/logutil.h"
 
+#ifdef _WIN32
+#define popen _popen
+#define pclose _pclose
+#endif
+
 namespace common {
 
 std::string ExecUtil::Run(std::string command) {
   if (command.empty()) return "";  
   LogUtil::Debug()<<command;
   FILE   *pPipe;
-  if( !(pPipe = _popen( command.c_str(), "rt" )) ) {
+  if( !(pPipe = popen( command.c_str(), "rt" )) ) {
    return "";
   }
   std::ostringstream buf;
@@ -20,7 +25,7 @@ std::string ExecUtil::Run(std::string command) {
   }
   if (feof( pPipe))
   {
-    /*int returnCode = */_pclose( pPipe ) ;
+    /*int returnCode = */pclose( pPipe ) ;
   }
   LogUtil::Debug()<<buf.str();
   return buf.str();

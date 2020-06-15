@@ -4,7 +4,9 @@
 #include <sstream>
 #include <iomanip>
 #include <codecvt>
+#ifdef _WIN32
 #include <wtypes.h>
+#endif
 
 namespace common {
 
@@ -57,6 +59,7 @@ std::string StringUtil::toNarrow(const std::wstring& s) {
   return narrow;
 }
 
+#ifdef _WIN32
 std::shared_ptr<wchar_t> StringUtil::toBSTR(const std::string& s) {
   auto bstr = SysAllocString(StringUtil::toWide(s).c_str());
   auto b = std::shared_ptr<OLECHAR>(bstr,[](BSTR b){
@@ -64,5 +67,6 @@ std::shared_ptr<wchar_t> StringUtil::toBSTR(const std::string& s) {
   });
   return b;
 }
+#endif
 
 }
