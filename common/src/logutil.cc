@@ -6,7 +6,7 @@
 namespace common {
 
 LogUtil::LogUtil(std::filesystem::path file) : selfManaged(true) {  
-  _output = new std::ofstream(file.wstring());
+  _output = new std::ofstream(file.string());
 }
 
 LogLine LogUtil::Debug() {
@@ -25,10 +25,8 @@ LogLine::LogLine(std::shared_ptr<LogUtil> logger) : _logger (logger) {
   struct tm p;
 #ifdef _WIN32
   localtime_s(&p,&now);
-#elif __APPLE__
-  localtime_r(&now,&p);
 #else
-  localtime_s(&now,&p);
+  localtime_r(&now,&p);
 #endif
   char str[20];
   strftime(str, sizeof str, "%F-%T", &p);

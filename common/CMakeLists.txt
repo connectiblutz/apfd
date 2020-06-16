@@ -54,3 +54,10 @@ target_compile_definitions(common PRIVATE
   UNICODE
 )
 endif()
+
+if(UNIX AND NOT APPLE)
+target_link_libraries(common PUBLIC
+  pthread # threading
+  stdc++fs # filesystem
+)
+endif()

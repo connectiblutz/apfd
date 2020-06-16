@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <vector>
+#include <algorithm>
 
 namespace common {
 
