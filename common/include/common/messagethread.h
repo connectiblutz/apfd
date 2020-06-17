@@ -66,7 +66,7 @@ class MessageThread {
     };
   private:
     void messageLoop();
-    virtual bool handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage);
+    virtual void handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage);
     friend MessageThreadPool;
     std::thread t;
     static const uint16_t MSG_STOP;

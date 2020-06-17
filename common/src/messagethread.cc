@@ -10,7 +10,6 @@ MessageThread::MessageThread() {
 }
 
 MessageThread::~MessageThread() {
-  stop();
   join();
 }
 
@@ -40,6 +39,7 @@ void MessageThread::stop() {
 }
 
 void MessageThread::join() {
+  stop();
   static std::mutex joinMutex;
   std::lock_guard lock(joinMutex);
   if (t.joinable()) t.join();
@@ -47,8 +47,8 @@ void MessageThread::join() {
 
 void MessageThread::messageLoop() {
   std::chrono::steady_clock::time_point until(std::chrono::steady_clock::time_point::max());
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
   while (true) {
-    std::unique_lock<std::mutex> lk(messageQueueMutex);
     // wait if there are no messages or we have an until time
     if (until!= std::chrono::steady_clock::time_point::max()) {
       messageQueueConditionVariable.wait_until(lk,until);
@@ -67,17 +67,16 @@ void MessageThread::messageLoop() {
       }
       messageQueue.pop();
       until=std::chrono::steady_clock::time_point::max();
-      if (handleMessage(lk,storedMessage)) return;
+      if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
+      handleMessage(lk,storedMessage);
     }
   }
 }
-bool MessageThread::handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage) {
-  if (storedMessage.message.code()==MessageThread::MSG_STOP) return true;
+void MessageThread::handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage) {
   // unlock so OnMessage can post new messages
   lk.unlock();
   OnMessage(storedMessage.message);
   lk.lock();
-  return false;
 }
 
 }

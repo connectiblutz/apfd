@@ -5,6 +5,7 @@ target_sources(common
   PRIVATE
     src/messagethread.cc
     src/messagethreadpool.cc
+    src/threadpool.cc
     src/consolehandler.cc
     src/consolesecret.cc
     src/fileutil.cc
@@ -20,6 +21,7 @@ target_sources(common
   PUBLIC
     include/common/messagethread.h
     include/common/messagethreadpool.h
+    include/common/threadpool.h
     include/common/consolehandler.h
     include/common/consolesecret.h
     include/common/fileutil.h
