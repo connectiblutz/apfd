@@ -11,7 +11,7 @@ namespace apfd {
 const uint16_t ApfdWorker::MSG_READCONFIG = 1;
 const uint16_t ApfdWorker::MSG_CHECKSERVICE = 2;
 
-ApfdWorker::ApfdWorker() : common::MessageThreadPool(2) {
+ApfdWorker::ApfdWorker() {
   configPath=getConfigPath();
   configWatcher = std::make_unique<common::FileWatcher>(configPath,[this]() {
     post(ApfdWorker::MSG_READCONFIG);

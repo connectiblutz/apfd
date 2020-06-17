@@ -6,6 +6,10 @@
 namespace common {
 
 MessageThreadPool::MessageThreadPool(uint16_t threads) {
+  if (threads==0) {
+    threads = std::thread::hardware_concurrency();
+  }
+  LogUtil::Debug()<<"using thread pool size "<<threads;
   for (auto i = 0; i < threads; i++) {
     poolThreads.push_back(std::thread(&MessageThreadPool::poolLoop,this));
   }
