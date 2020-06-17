@@ -1,6 +1,8 @@
 #include "common/messagethreadpool.h"
 #include "common/logutil.h"
 
+#define UNUSED(x) (void)(x)
+
 namespace common {
 
 MessageThreadPool::MessageThreadPool(uint16_t threads) {
@@ -24,41 +26,19 @@ void MessageThreadPool::join() {
   MessageThread::join();
 }
 
-void MessageThreadPool::messageLoop() {
-  std::chrono::steady_clock::time_point until(std::chrono::steady_clock::time_point::max());
-  while (true) {
-    std::unique_lock<std::mutex> lk(messageQueueMutex);
-    // wait if there are no messages or we have an until time
-    if (until!= std::chrono::steady_clock::time_point::max()) {
-      messageQueueConditionVariable.wait_until(lk,until);
-    } else if (messageQueue.empty()) {
-      messageQueueConditionVariable.wait(lk);
+bool MessageThreadPool::handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage) {
+  UNUSED(lk);
+  std::unique_lock<std::mutex> plk(poolMutex);
+  if (storedMessage.message.code()==MessageThread::MSG_STOP) {
+    for (unsigned i = 0; i < poolThreads.size(); i++) {
+      poolQueue.push(storedMessage);
     }
-    // process messages until the next is a delayed
-    while (!messageQueue.empty()) {
-      auto storedMessage = messageQueue.top();
-      if (!storedMessage.isImmediate) {
-        auto now = std::chrono::steady_clock::now();
-        if (now < storedMessage.deliveryTime) {
-          until=storedMessage.deliveryTime;
-          break;
-        }
-      }
-      messageQueue.pop();
-      until=std::chrono::steady_clock::time_point::max();
-      std::unique_lock<std::mutex> lk(poolMutex);
-      if (storedMessage.message.code()==MessageThread::MSG_STOP) {
-        for (unsigned i = 0; i < poolThreads.size(); i++) {
-          poolQueue.push(storedMessage);
-        }
-        poolConditionVariable.notify_all();
-        return;
-      } else {
-        poolQueue.push(storedMessage);
-        poolConditionVariable.notify_one();
-      }
-
-    }
+    poolConditionVariable.notify_all();
+    return true;
+  } else {
+    poolQueue.push(storedMessage);
+    poolConditionVariable.notify_one();
+    return false;
   }
 }
 void MessageThreadPool::poolLoop() {
@@ -71,7 +51,7 @@ void MessageThreadPool::poolLoop() {
       auto storedMessage = poolQueue.front();
       poolQueue.pop();
       if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
-      // unlock so OnMessage can post new messages
+      // unlock so other workers can process messages
       lk.unlock();
       OnMessage(storedMessage.message);
       lk.lock();

@@ -67,13 +67,17 @@ void MessageThread::messageLoop() {
       }
       messageQueue.pop();
       until=std::chrono::steady_clock::time_point::max();
-      if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
-      // unlock so OnMessage can post new messages
-      lk.unlock();
-      OnMessage(storedMessage.message);
-      lk.lock();
+      if (handleMessage(lk,storedMessage)) return;
     }
   }
+}
+bool MessageThread::handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage) {
+  if (storedMessage.message.code()==MessageThread::MSG_STOP) return true;
+  // unlock so OnMessage can post new messages
+  lk.unlock();
+  OnMessage(storedMessage.message);
+  lk.lock();
+  return false;
 }
 
 }

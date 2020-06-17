@@ -11,7 +11,7 @@ class MessageThreadPool : public MessageThread {
     virtual ~MessageThreadPool();
     virtual void join();
   private:
-    virtual void messageLoop();
+    virtual bool handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage);
     void poolLoop();
     std::queue<StoredMessage> poolQueue;
     std::list<std::thread> poolThreads;
