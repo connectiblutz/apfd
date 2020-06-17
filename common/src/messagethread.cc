@@ -10,6 +10,7 @@ MessageThread::MessageThread() {
 }
 
 MessageThread::~MessageThread() {
+  stop();
   join();
 }
 
@@ -39,7 +40,6 @@ void MessageThread::stop() {
 }
 
 void MessageThread::join() {
-  stop();
   static std::mutex joinMutex;
   std::lock_guard lock(joinMutex);
   if (t.joinable()) t.join();

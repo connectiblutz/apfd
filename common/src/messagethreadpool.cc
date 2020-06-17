@@ -9,6 +9,7 @@ MessageThreadPool::MessageThreadPool(uint16_t threads) : threadPool(threads) {
 }
 
 MessageThreadPool::~MessageThreadPool() {
+  stop();
   join();
 }
 
@@ -18,7 +19,6 @@ void MessageThreadPool::stop() {
 }
 
 void MessageThreadPool::join() {
-  stop();
   threadPool.join();
   MessageThread::join();
 }

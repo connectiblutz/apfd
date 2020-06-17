@@ -14,6 +14,7 @@ ThreadPool::ThreadPool(uint16_t threads) : running(true) {
 }
 
 ThreadPool::~ThreadPool() {
+  stop();
   join();
 }
 
@@ -29,7 +30,6 @@ void ThreadPool::stop() {
 }
 
 void ThreadPool::join() {
-  stop();
   static std::mutex joinMutex;
   std::lock_guard lock(joinMutex);
   for (auto&& pt : poolThreads) {
@@ -42,11 +42,13 @@ void ThreadPool::poolLoop() {
   while (running) {
     poolConditionVariable.wait(lk);
     // process messages until the next is a delayed
-    auto runnable = poolQueue.front();
-    poolQueue.pop();
-    lk.unlock();
-    runnable->run();
-    lk.lock();
+    if (!poolQueue.empty()) {
+      auto runnable = poolQueue.front();
+      poolQueue.pop();
+      lk.unlock();
+      runnable->run();
+      lk.lock();
+    }
   }
 }
 
