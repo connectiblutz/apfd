@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "common/stringutil.h"
 #include "common/logutil.h"
+#if !defined(_WIN32) && !defined(__APPLE__)
+#include "common/executil.h"
+#endif
 
 #define UNUSED(x) (void)(x)
 
@@ -72,8 +75,10 @@ void FirewallControl::open(Direction direction) {
       }
     }
   });
-#else
+#elif defined(__APPLE__)
   UNUSED(_remotePort);
+#else
+  ExecUtil::Run("ufw allow proto " + _protocol + " to " + _remoteIp + " port "+std::to_string(_remotePort));
 #endif
 }
 
@@ -101,7 +106,10 @@ void FirewallControl::close(Direction direction) {
       common::LogUtil::Debug()<<"Firewall Rule Remove failed: "<<hr;
     }
   });
-  #endif
+#elif defined(__APPLE__)
+#else
+  ExecUtil::Run("ufw delete allow proto " + _protocol + " to " + _remoteIp + " port "+std::to_string(_remotePort));
+#endif
 }
 
 
@@ -147,8 +155,6 @@ void FirewallControl::commonSetup(std::function<void(std::shared_ptr<INetFwRules
     }
     CoUninitialize();
   }
-
-}
 #endif
 
 }
