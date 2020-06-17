@@ -10,11 +10,10 @@
 namespace common {
     
 std::string ConsoleSecret::Get(const std::string& prompt) {
+    std::string secret;
     if (!prompt.empty()) {
         std::cout << prompt;
     }
-    std::string secret;
-
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
     DWORD mode = 0;
@@ -30,7 +29,7 @@ std::string ConsoleSecret::Get(const std::string& prompt) {
     struct termios newt = oldt;
     newt.c_lflag &= ~ECHO;
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    char* tmpBuffer;
+    char* tmpBuffer = nullptr;
     size_t tmpSize = 0;
     ssize_t read = getline(&tmpBuffer, &tmpSize, stdin);
     if (read) {
@@ -39,7 +38,7 @@ std::string ConsoleSecret::Get(const std::string& prompt) {
     free(tmpBuffer);
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 #endif
-
+    std::cout << std::endl;
     return secret;
 }
 
