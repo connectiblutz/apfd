@@ -3,6 +3,12 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <fileapi.h>
+#elif defined(__APPLE__)
+#include <sys/event.h>
+#include <fcntl.h>
+#include <unistd.h>
+#else
+#include <sys/inotify.h>
 #endif
 
 namespace common {
@@ -62,6 +68,59 @@ void FileWatcher::run() {
    }
 
   FindCloseChangeNotification(dwChangeHandle);
+#elif defined(__APPLE__)
+
+    int kq;
+    int event_fd;
+    struct kevent events_to_monitor[1];
+    struct kevent event_data[1];
+    struct timespec timeout;
+    unsigned int vnode_events;
+ 
+    /* Open a kernel queue. */
+    if ((kq = kqueue()) < 0) {
+        LogUtil::Debug()<< "Could not open kernel queue. "<< strerror(errno);
+        return;
+    }
+ 
+    /*
+       Open a file descriptor for the file/directory that you
+       want to monitor.
+     */
+    event_fd = open(_watchedFile.c_str(), O_EVTONLY);
+    if (event_fd <=0) {
+        LogUtil::Debug()<< "The file " << _watchedFile << " could not be opened for monitoring. "<< strerror(errno);
+        return;
+    }
+ 
+    /* Set the timeout to wake us every half second. */
+    timeout.tv_sec = 0;        // 0 seconds
+    timeout.tv_nsec = 250000000;    // 250 milliseconds
+ 
+    /* Set up a list of events to monitor. */
+    vnode_events = NOTE_WRITE; // NOTE_DELETE |  NOTE_WRITE | NOTE_EXTEND | NOTE_ATTRIB | NOTE_LINK | NOTE_RENAME | NOTE_REVOKE;
+    EV_SET( &events_to_monitor[0], event_fd, EVFILT_VNODE, EV_ADD | EV_CLEAR, vnode_events, 0, (void*)_watchedFile.c_str());
+ 
+    /* Handle events. */
+    while (_enabled) {
+        int event_count = kevent(kq, events_to_monitor, 1, event_data, 1, &timeout);
+        if ((event_count < 0) || (event_data[0].flags == EV_ERROR)) {
+            /* An error occurred. */
+            LogUtil::Debug()<< "An error occurred (event count " << event_count << "). " << strerror(errno);
+            break;
+        }
+        if (event_count) {
+            _onChange();
+        }
+ 
+        /* Reset the timeout.  In case of a signal interrruption, the
+           values may change. */
+        timeout.tv_sec = 0;        // 0 seconds
+        timeout.tv_nsec = 500000000;    // 500 milliseconds
+    }
+    close(event_fd);
+
+#else
 #endif
 }
 
