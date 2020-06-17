@@ -9,6 +9,10 @@
 #include <unistd.h>
 #else
 #include <sys/inotify.h>
+#include <limits.h>
+#include <poll.h>
+#include <string.h>
+#include <unistd.h>
 #endif
 
 namespace common {
@@ -121,6 +125,31 @@ void FileWatcher::run() {
     close(event_fd);
 
 #else
+  int inotfd = inotify_init();
+
+  int watch_desc = inotify_add_watch(inotfd, _watchedFile.c_str(), IN_MODIFY);
+
+  size_t bufsiz = sizeof(struct inotify_event) + PATH_MAX + 1;
+  struct inotify_event* event = (struct inotify_event*)malloc(bufsiz);
+
+  /* wait for an event to occur */
+  while (_enabled) {
+    struct pollfd pfd = { inotfd, POLLIN, 0 };
+    int ret = poll(&pfd, 1, 250);  // timeout of 250ms
+    if (ret < 0) {
+      LogUtil::Debug()<<"poll failed: "<< strerror(errno);
+    } else if (ret == 0) {
+      // Timeout with no events, move on.
+    } else {
+      // Process the new event.
+      read(inotfd, event, bufsiz);
+      _onChange();
+    }
+  }
+
+  inotify_rm_watch(inotfd, watch_desc);
+  free(event);
+  close(inotfd);
 #endif
 }
 
