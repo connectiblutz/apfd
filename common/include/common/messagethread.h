@@ -9,6 +9,8 @@
 
 namespace common {
 
+class MessageThreadPool;
+
 class MessageThread {
   public:
     class Message {
@@ -27,8 +29,8 @@ class MessageThread {
     void post(Message message);
     void postDelayed(Message message, std::chrono::milliseconds delay);
     void clear(uint16_t code);
-    void stop();
-    void join();
+    virtual void stop();
+    virtual void join();
   protected:
     virtual void OnMessage(Message message) = 0;
   private:
@@ -63,8 +65,9 @@ class MessageThread {
         }
     };
   private:
+    virtual void messageLoop();
+    friend MessageThreadPool;
     std::thread t;
-    void messageLoop();
     static const uint16_t MSG_STOP;
     std::mutex messageQueueMutex;
     std::condition_variable messageQueueConditionVariable;

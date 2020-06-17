@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/messagethread.h"
+#include "common/messagethreadpool.h"
 #include "apfdservice.h"
 #include <list>
 #include <memory>
@@ -9,7 +9,7 @@
 
 namespace apfd {
 
-class ApfdWorker : public common::MessageThread {
+class ApfdWorker : public common::MessageThreadPool {
   public:
    ApfdWorker();
    ~ApfdWorker();

@@ -4,6 +4,7 @@ add_library(common)
 target_sources(common
   PRIVATE
     src/messagethread.cc
+    src/messagethreadpool.cc
     src/consolehandler.cc
     src/fileutil.cc
     src/logutil.cc
@@ -17,6 +18,7 @@ target_sources(common
     src/servicecontrol.cc
   PUBLIC
     include/common/messagethread.h
+    include/common/messagethreadpool.h
     include/common/consolehandler.h
     include/common/fileutil.h
     include/common/logutil.h
