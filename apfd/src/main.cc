@@ -10,6 +10,7 @@
 int main(int argc, char** argv) {
 
   if (argc>1) {
+#ifdef _WIN32
     if (strcmp(argv[1],"--install")==0) {
       auto user = std::string(argc>2?argv[2]:"");
       auto pass = std::string(argc>3?argv[3]:"");
@@ -21,6 +22,7 @@ int main(int argc, char** argv) {
     if (strcmp(argv[1],"--remove")==0) {
       return apfd::removeAsService();
     }
+#endif
     if (strcmp(argv[1],"--debug")==0) {
       return apfd::runAsApp();
     }
