@@ -6,6 +6,7 @@ target_sources(common
     src/messagethread.cc
     src/messagethreadpool.cc
     src/consolehandler.cc
+    src/consolesecret.cc
     src/fileutil.cc
     src/logutil.cc
     src/executil.cc
@@ -20,6 +21,7 @@ target_sources(common
     include/common/messagethread.h
     include/common/messagethreadpool.h
     include/common/consolehandler.h
+    include/common/consolesecret.h
     include/common/fileutil.h
     include/common/logutil.h
     include/common/priorityqueueex.h
