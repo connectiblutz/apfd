@@ -30,6 +30,7 @@ class MessageThread {
     void postDelayed(Message message, std::chrono::milliseconds delay);
     void clear(uint16_t code);
     virtual void stop();
+    virtual void stopWhenEmpty();
     virtual void join();
   protected:
     virtual void OnMessage(Message message) = 0;
@@ -66,6 +67,7 @@ class MessageThread {
     };
   private:
     void messageLoop();
+    bool _stopWhenEmpty;
     virtual void handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage);
     friend MessageThreadPool;
     std::thread t;

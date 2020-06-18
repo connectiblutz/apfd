@@ -39,6 +39,12 @@ void MessageThread::stop() {
   post(MSG_STOP);
 }
 
+void MessageThread::stopWhenEmpty() {
+  std::unique_lock<std::mutex> lk(messageQueueMutex);
+  _stopWhenEmpty=true;
+  messageQueueConditionVariable.notify_one();
+}
+
 void MessageThread::join() {
   static std::mutex joinMutex;
   std::lock_guard lock(joinMutex);
@@ -69,6 +75,9 @@ void MessageThread::messageLoop() {
       until=std::chrono::steady_clock::time_point::max();
       if (storedMessage.message.code()==MessageThread::MSG_STOP) return;
       handleMessage(lk,storedMessage);
+    }
+    if (_stopWhenEmpty && messageQueue.empty()) {
+      break;
     }
   }
 }

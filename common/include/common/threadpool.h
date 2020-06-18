@@ -26,8 +26,10 @@ class ThreadPool {
     virtual void post(std::shared_ptr<Runnable> runnable);
     virtual void join();
     virtual void stop();
+    virtual void stopWhenEmpty();
   private:
     bool running;
+    bool _stopWhenEmpty;
     void poolLoop();
     std::queue<std::shared_ptr<Runnable>> poolQueue;
     std::list<std::thread> poolThreads;

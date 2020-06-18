@@ -67,3 +67,5 @@ target_link_libraries(common PUBLIC
   stdc++fs # filesystem
 )
 endif()
+
+add_subdirectory(tests)

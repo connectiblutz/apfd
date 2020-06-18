@@ -11,6 +11,7 @@ class MessageThreadPool : public MessageThread {
     MessageThreadPool(uint16_t threads = 0);
     virtual ~MessageThreadPool();
     virtual void stop();
+    virtual void stopWhenEmpty();
     virtual void join();
   private:
     virtual void handleMessage(std::unique_lock<std::mutex>& lk, StoredMessage& storedMessage);

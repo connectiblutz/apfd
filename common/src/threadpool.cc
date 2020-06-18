@@ -25,7 +25,14 @@ void ThreadPool::post(std::shared_ptr<Runnable> runnable) {
 }
 
 void ThreadPool::stop() {
+  std::unique_lock<std::mutex> lk(poolMutex);
   running=false;
+  poolConditionVariable.notify_all();
+}
+
+void ThreadPool::stopWhenEmpty() {
+  std::unique_lock<std::mutex> lk(poolMutex);
+  _stopWhenEmpty=true;
   poolConditionVariable.notify_all();
 }
 
@@ -42,12 +49,15 @@ void ThreadPool::poolLoop() {
   while (running) {
     poolConditionVariable.wait(lk);
     // process messages until the next is a delayed
-    if (!poolQueue.empty()) {
+    while (!poolQueue.empty()) {
       auto runnable = poolQueue.front();
       poolQueue.pop();
       lk.unlock();
       runnable->run();
       lk.lock();
+    }
+    if (_stopWhenEmpty && poolQueue.empty()) {
+      break;
     }
   }
 }

@@ -18,6 +18,11 @@ void MessageThreadPool::stop() {
   MessageThread::stop();
 }
 
+void MessageThreadPool::stopWhenEmpty() {
+  threadPool.stopWhenEmpty();
+  MessageThread::stopWhenEmpty();
+}
+
 void MessageThreadPool::join() {
   threadPool.join();
   MessageThread::join();
