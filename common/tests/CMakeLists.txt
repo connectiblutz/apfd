@@ -1,11 +1,22 @@
 cmake_minimum_required(VERSION 3.13)
 
-add_executable(common_test)
-target_sources(common_test
-  PRIVATE
-    messagethreadpool_perf.cc
+add_executable(messagethreadpool_perf
+  messagethreadpool_perf.cc
+)
+target_link_libraries(messagethreadpool_perf
+  common
 )
 
-target_link_libraries(common_test
+add_executable(threadpool_class_perf
+  threadpool_class_perf.cc
+)
+target_link_libraries(threadpool_class_perf
+  common
+)
+
+add_executable(threadpool_lambda_perf
+  threadpool_lambda_perf.cc
+)
+target_link_libraries(threadpool_lambda_perf
   common
 )
