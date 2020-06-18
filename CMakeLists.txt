@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(apfd VERSION 0.3.0 LANGUAGES CXX C)
+project(apfd VERSION 0.5.0 LANGUAGES CXX C)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
