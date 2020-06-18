@@ -3,7 +3,7 @@
 
 namespace common {
 
-ThreadPool::ThreadPool(uint16_t threads) : running(true) {
+ThreadPool::ThreadPool(uint16_t threads) : running(true), _stopWhenEmpty(false) {
   if (threads==0) {
     threads = std::thread::hardware_concurrency();
   }
