@@ -27,6 +27,16 @@ if (vcpkgPlatform=="win32") {
   vcpkgPlatform="osx";
 }
 
+function getVcpkgTriplet(arch) {
+  var vcpkgTriplet = arch+"-"+vcpkgPlatform;
+  if (vcpkgPlatform=="windows" && props.vcpkg.static===true) {
+    vcpkgTriplet+="-static";
+  } else if (vcpkgPlatform=="osx" && props.vcpkg.static===false) {
+    vcpkgTriplet+="-dynamic";
+  }
+  return vcpkgTriplet;
+}
+
 function clean(arch, config) {
   console.log("Cleaning up "+arch+" "+config+"...");
   shelljs.rm("-rf",path.join("_builds",arch,config));
@@ -36,10 +46,7 @@ function setup(arch, config) {
   console.log("Setting up "+arch+" "+config+"...");
   shelljs.mkdir("-p",path.join("_builds",arch,config));
   process.env.VSCMD_ARG_TGT_ARCH=arch
-  var vcpkgTriplet = arch+"-"+vcpkgPlatform;
-  if (vcpkgPlatform=="windows" && props.vcpkg.static===true) {
-    vcpkgTriplet+="-static";
-  }
+  var vcpkgTriplet = getVcpkgTriplet(arch);
   if (shelljs.exec("cmake -B "+path.join("_builds",arch,config)+" -GNinja -DCMAKE_BUILD_TYPE="+config+" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_TOOLCHAIN_FILE="+props.vcpkg.root+"/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET="+vcpkgTriplet).code != 0) {
     process.exit(1);
   }
@@ -81,10 +88,7 @@ function processDepends(arch, file) {
   let deps = JSON.parse(fs.readFileSync(file));
   let currentPkg = processVcpkgInstall();
   for (let [key, value] of Object.entries(deps)) {
-    var pkgName = key+":"+arch+"-"+vcpkgPlatform;
-    if (vcpkgPlatform=="windows" && props.vcpkg.static===true) {
-      pkgName+="-static";
-    }
+    var pkgName = key+":"+getVcpkgTriplet(arch);
     if (!currentPkg[pkgName]) {
       console.log("Installing "+pkgName+"...")
       if (shelljs.exec(path.join(props.vcpkg.root,"vcpkg")+" install "+pkgName).code != 0) {
@@ -118,7 +122,7 @@ function fullArchSteps(doClean, arch, config, targets) {
 
 // validate args
 let arch = options.arch;
-if (arch=="x64"||arch=="64") {
+if (arch=="x64"||arch=="amd64"||arch=="64") {
   arch="x64";
 } else if (arch=="x86"||arch=="86"||arch=="x32"||arch=="32") {
   arch="x86"
