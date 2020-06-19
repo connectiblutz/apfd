@@ -6,6 +6,7 @@
 #include <functional>
 #include <thread>
 #include <memory>
+#include <condition_variable>
 
 namespace common {
 
