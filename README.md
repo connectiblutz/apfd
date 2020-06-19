@@ -2,7 +2,7 @@
 
 Building
 ===
- - `./build.[sh|ps1] [--clean] [--all|-x86|-x64] [-- <targets..>]`
+ - `./build.[sh|ps1] [-x|--clean] [-a|--arch=[x64|x86]] [-c|--conf=[release|debug]] [-- targets..]`
 
 Installing
 ===

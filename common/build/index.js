@@ -1,19 +1,18 @@
 const shelljs = require('shelljs');
 const path = require('path');
 
-var argv = require('minimist')(process.argv.slice(2));
-if (!argv.x64 && !argv.$x86) {
-  argv.x64=true
-}
-if (!argv.release && !argv.debug) {
-  argv.release=true
-}
-if (argv.all) {
-  argv.x64=true
-  argv.x86=true
-  argv.release=true
-  argv.debug=true
-}
+const options = require('getopts')(process.argv.slice(2), {
+  alias: {
+    conf: "c",
+    arch: "a",
+    clean
+  },
+  default: {
+    conf: "release",
+    arch: "x64",
+    clean: false
+  }
+});
 
 function clean(arch, config) {
   console.log("Cleaning up "+arch+" "+config+"...");
@@ -38,22 +37,31 @@ function build(arch, config, targets) {
 }
   
 function fullArchSteps(arch, config, targets) {
-  if (argv.clean) {
+  if (options.clean) {
     clean(arch, config);
   }
   setup(arch, config);
   build(arch, config, targets);
 }
 
-if (argv.x64 && argv.release) {
-  fullArchSteps("x64", "Release", argv._);
+// validate args
+console.log(options);
+var arch = options.arch;
+if (arch=="x64"||arch=="64") {
+  arch="x64";
+} else if (arch=="x86"||arch=="86"||arch=="32") {
+  arch="x86"
+} else {
+  console.error("invalid arch");
+  process.exit(1);
 }
-if (argv.x64 && argv.debug) {
-  fullArchSteps("x64", "Debug", argv._);
+var conf = options.conf;
+if (conf=="release"||conf=="Release"||conf=="r") {
+  conf="Release";
+} else if (conf=="debug"||conf=="Debug"||conf=="d") {
+  conf="Debug"
+} else {
+  console.error("invalid conf");
+  process.exit(1);
 }
-if (argv.x86 && argv.release) {
-  fullArchSteps("x86", "Release", argv._);
-}
-if (argv.x86 && argv.debug) {
-  fullArchSteps("x86", "Debug", argv._);
-}
+fullArchSteps(arch, conf, options._);
