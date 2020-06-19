@@ -5,7 +5,7 @@ Development Setup
  - Dependencies
    - node (>=10)
    - cmake (>=3.13)
-   - ninja
+   - ninja (>=1.8.2)
    - clang (>=10)
    - vcpkg
  - Create file `build-local.conf`
