@@ -1,5 +1,10 @@
 const shelljs = require('shelljs');
 const path = require('path');
+const fs = require('fs');
+
+var props = require('properties-reader')("build.conf");
+if (fs.existsSync('build-local.conf')) props=props.append("build-local.conf");
+props=props.path()
 
 const options = require('getopts')(process.argv.slice(2), {
   alias: {
@@ -8,8 +13,8 @@ const options = require('getopts')(process.argv.slice(2), {
     clean
   },
   default: {
-    conf: "release",
-    arch: "x64",
+    conf: props.default.conf?props.default.conf:"release",
+    arch: props.default.arch?props.default.arch:"x64",
     clean: false
   }
 });
@@ -23,7 +28,7 @@ function setup(arch, config) {
   console.log("Setting up "+arch+" "+config+"...");
   shelljs.mkdir("-p",path.join("_builds",arch,config));
   process.env.VSCMD_ARG_TGT_ARCH=arch
-  if (shelljs.exec("cmake -B "+path.join("_builds",arch,config)+" -GNinja -DCMAKE_BUILD_TYPE="+config+" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++").code != 0) {
+  if (shelljs.exec("cmake -B "+path.join("_builds",arch,config)+" -GNinja -DCMAKE_BUILD_TYPE="+config+" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_TOOLCHAIN_FILE="+props.vcpkg.root+"/scripts/buildsystems/vcpkg.cmake").code != 0) {
     process.exit(1);
   }
 }
@@ -45,7 +50,6 @@ function fullArchSteps(arch, config, targets) {
 }
 
 // validate args
-console.log(options);
 var arch = options.arch;
 if (arch=="x64"||arch=="64") {
   arch="x64";

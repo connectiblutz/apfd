@@ -10,4 +10,6 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 _builds
-.vscode/
+.vscode
+build-local.conf
+apfd.json

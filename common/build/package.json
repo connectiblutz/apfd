@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "getopts": "^2.2.5",
+    "properties-reader": "^2.0.0",
     "shelljs": "^0.8.4"
   }
 }
