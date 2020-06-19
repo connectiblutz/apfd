@@ -155,6 +155,7 @@ void FirewallControl::commonSetup(std::function<void(std::shared_ptr<INetFwRules
     }
     CoUninitialize();
   }
+}
 #endif
 
 }

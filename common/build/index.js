@@ -25,7 +25,7 @@ function setup(arch, config) {
   shelljs.mkdir("-p",path.join("_builds",arch,config));
   process.env.VSCMD_ARG_TGT_ARCH=arch
   if (shelljs.exec("cmake -B "+path.join("_builds",arch,config)+" -GNinja -DCMAKE_BUILD_TYPE="+config+" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++").code != 0) {
-    exit(1);
+    process.exit(1);
   }
 }
 
@@ -33,7 +33,7 @@ function build(arch, config, targets) {
   console.log("Building "+arch+" "+config+"...");
   process.env.VSCMD_ARG_TGT_ARCH=arch
   if (shelljs.exec("ninja -C "+path.join("_builds",arch,config)+" "+targets.join(" ")).code != 0) {
-    exit(1);
+    process.exit(1);
   }
 }
   
