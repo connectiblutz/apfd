@@ -23,6 +23,8 @@ const options = require('getopts')(process.argv.slice(2), {
 let vcpkgPlatform = os.platform();
 if (vcpkgPlatform=="win32") {
   vcpkgPlatform="windows";
+} else if (vcpkgPlatform=="darwin") {
+  vcpkgPlatform="osx";
 }
 
 function clean(arch, config) {
@@ -105,8 +107,8 @@ function processVcpkgInstall() {
   return installed;
 }
   
-function fullArchSteps(clean, arch, config, targets) {
-  if (clean) {
+function fullArchSteps(doClean, arch, config, targets) {
+  if (doClean) {
     clean(arch, config);
   }
   depends(arch)
