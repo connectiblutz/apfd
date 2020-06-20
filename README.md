@@ -1,22 +1,8 @@
 # apfd - auto port forward daemon
 
-Development Setup
-===
- - Dependencies
-   - node (>=10)
-   - cmake (>=3.13)
-   - ninja (>=1.8.2)
-   - clang (>=10)
-   - vcpkg
- - Create file `build-local.conf`
- ```
-[vcpkg]
-root = <path-to-vcpkg>
-```
-
 Building
 ===
- - `./build.[sh|ps1] [-x|--clean] [-a|--arch=[x64|x86]] [-c|--conf=[release|debug]] [-- targets..]`
+ - Use `bcBuild` - https://github.com/connectiblutz/bcBuild
 
 Installing
 ===
