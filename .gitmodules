@@ -1,0 +1,4 @@
+[submodule "bcLib"]
+	path = bcLib
+	url = https://github.com/connectiblutz/bcLib
+	branch = master

@@ -11,5 +11,5 @@ CTestTestfile.cmake
 _deps
 _builds
 .vscode
-build-local.conf
+bcBuild-local.conf
 apfd.json
