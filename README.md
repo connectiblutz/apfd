@@ -2,7 +2,7 @@
 
 Building
 ===
- - Use `bcBuild` - https://github.com/connectiblutz/bcBuild
+ - `cmake -B _builds && make -C _builds apfd`
 
 Installing
 ===
@@ -12,7 +12,7 @@ Installing
 
 Running manually
 ===
- - `apfd.exe --debug`
+ - `apfd[.exe] --debug`
 
 Config
 ===
