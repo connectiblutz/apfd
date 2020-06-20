@@ -2,3 +2,7 @@
 	path = bcl
 	url = https://github.com/connectiblutz/bcLib
 	branch = master
+[submodule "wsl"]
+	path = wsl
+	url = https://github.com/connectiblutz/wsl
+	branch = master
