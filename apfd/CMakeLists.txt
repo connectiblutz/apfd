@@ -20,7 +20,7 @@ target_include_directories(apfd PRIVATE
 )
 
 target_link_libraries(apfd
-  common
+  bcl
   cJSON
 )
 

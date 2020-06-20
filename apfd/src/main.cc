@@ -2,8 +2,8 @@
 
 #include "install.h"
 #include "run.h"
-#include "common/stringutil.h"
-#include "common/consolesecret.h"
+#include <bcl/stringutil.h>
+#include <bcl/consolesecret.h>
 
 #include <cstring>
 
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
       auto user = std::string(argc>2?argv[2]:"");
       auto pass = std::string(argc>3?argv[3]:"");
       if (pass.empty()) {
-        pass = common::ConsoleSecret::Get("Enter password : ");
+        pass = bcl::ConsoleSecret::Get("Enter password : ");
       }
       return apfd::installAsService(user,pass);
     }

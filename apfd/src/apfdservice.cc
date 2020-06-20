@@ -1,10 +1,10 @@
 #include "apfdservice.h"
-#include "common/executil.h"
-#include "common/socketutil.h"
-#include "common/stringutil.h"
-#include "common/firewallcontrol.h"
+#include <bcl/executil.h>
+#include <bcl/socketutil.h>
+#include <bcl/stringutil.h>
+#include <bcl/firewallcontrol.h>
 #ifdef _WIN32
-#include "common/servicecontrol.h"
+#include <bcl/servicecontrol.h>
 #include "wsl/wslutil.h"
 #endif
 
@@ -37,7 +37,7 @@ ApfdService::ApfdService(cJSON* config) : enabled(false), autoStart(false), open
 
 #ifdef _WIN32
   if (this->enabled && ApfdService::isWsl(this->localIp)) {
-    auto service = common::ServiceControl("vmcompute");
+    auto service = bcl::ServiceControl("vmcompute");
     service.start();
   }
 #endif
@@ -61,7 +61,7 @@ std::string ApfdService::translateIp(const std::string& ip) {
 }
 
 bool ApfdService::isReachable() {
-  auto socket = common::SocketUtil::Create(protocol,ApfdService::translateIp(localIp),localPort);
+  auto socket = bcl::SocketUtil::Create(protocol,ApfdService::translateIp(localIp),localPort);
   if (socket) return socket->isConnected();
   return false;
 }
@@ -69,18 +69,18 @@ bool ApfdService::isReachable() {
 void ApfdService::openPort() {
   closePort();
   opened=true;
-  auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
+  auto fc = bcl::FirewallControl(name,bcl::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
   fc.open();
 #ifdef _WIN32
-  common::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" connectport="+std::to_string(localPort)+" connectaddress="+ApfdService::translateIp(localIp)+" protocol="+protocol);
+  bcl::ExecUtil::Run("netsh interface portproxy add v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" connectport="+std::to_string(localPort)+" connectaddress="+ApfdService::translateIp(localIp)+" protocol="+protocol);
 #endif
 }
 
 void ApfdService::closePort() {
-  auto fc = common::FirewallControl(name,common::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
+  auto fc = bcl::FirewallControl(name,bcl::FirewallControl::Direction::ANY,protocol,remoteIp,remotePort);
   fc.close();
 #ifdef _WIN32
-  common::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" protocol="+protocol);
+  bcl::ExecUtil::Run("netsh interface portproxy delete v4tov4 listenport="+std::to_string(remotePort)+" listenaddress="+ApfdService::translateIp(remoteIp)+" protocol="+protocol);
 #endif
   opened=false;
 }
@@ -92,7 +92,7 @@ void ApfdService::execStart() {
     wsl::WslUtil::run(vmName,startCommand);
   } else {
 #endif
-    common::ExecUtil::Run(startCommand);
+    bcl::ExecUtil::Run(startCommand);
 #ifdef _WIN32
   }
 #endif
@@ -106,7 +106,7 @@ bool ApfdService::isWsl(const std::string& ip) {
 
 std::string ApfdService::getWslDistro(const std::string& ip) {
   if (ApfdService::isWsl(ip)) {
-    auto parts = common::StringUtil::split(ip,':');
+    auto parts = bcl::StringUtil::split(ip,':');
     if (parts.size()>=2) return parts[1];
   }
   return "";
@@ -114,7 +114,7 @@ std::string ApfdService::getWslDistro(const std::string& ip) {
 std::string ApfdService::getWslInterface(const std::string& ip) {
   if (ApfdService::isWsl(ip)) {
     auto distro = ApfdService::getWslDistro(ip);
-    auto parts = common::StringUtil::split(ip,L':');
+    auto parts = bcl::StringUtil::split(ip,L':');
     if (parts.size()>=3) return parts[2];
     auto version = wsl::WslUtil::getVersion(distro);
     switch (version) {

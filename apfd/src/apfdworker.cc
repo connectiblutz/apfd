@@ -1,10 +1,10 @@
 #include "apfdworker.h"
 #include <iostream>
-#include "common/fileutil.h"
+#include <bcl/fileutil.h>
 #include "cJSON.h"
-#include "common/logutil.h"
-#include "common/pathutil.h"
-#include "common/stringutil.h"
+#include <bcl/logutil.h>
+#include <bcl/pathutil.h>
+#include <bcl/stringutil.h>
 
 namespace apfd {
 
@@ -13,7 +13,7 @@ const uint16_t ApfdWorker::MSG_CHECKSERVICE = 2;
 
 ApfdWorker::ApfdWorker() {
   configPath=getConfigPath();
-  configWatcher = std::make_unique<common::FileWatcher>(configPath,[this]() {
+  configWatcher = std::make_unique<bcl::FileWatcher>(configPath,[this]() {
     post(ApfdWorker::MSG_READCONFIG);
   });
   post(ApfdWorker::MSG_READCONFIG);
@@ -25,17 +25,17 @@ ApfdWorker::~ApfdWorker() {
 std::filesystem::path ApfdWorker::getConfigPath() {
   auto configPath = std::filesystem::path("apfd.json");
   if (!std::filesystem::exists(configPath)) {
-    configPath = common::PathUtil::binaryPath() / configPath;
+    configPath = bcl::PathUtil::binaryPath() / configPath;
   }
   return configPath;
 }
 
-void ApfdWorker::OnMessage(common::MessageThread::Message message) {
-  common::LogUtil::Debug()<<"received message "<<message.code();
+void ApfdWorker::OnMessage(bcl::MessageThread::Message message) {
+  bcl::LogUtil::Debug()<<"received message "<<message.code();
   if (message.code()==ApfdWorker::MSG_READCONFIG) {
     clear(ApfdWorker::MSG_CHECKSERVICE);
     servicesList.clear();
-    std::string configStr = common::FileUtil::FileToString(configPath);
+    std::string configStr = bcl::FileUtil::FileToString(configPath);
     cJSON* config = cJSON_Parse(configStr.c_str());
     cJSON* services = cJSON_GetObjectItem(config,"services");
     if (services && cJSON_IsArray(services)) {

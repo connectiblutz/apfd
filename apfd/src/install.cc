@@ -1,10 +1,10 @@
 #include "install.h"
-#include "common/servicecontrol.h"
+#include <bcl/servicecontrol.h>
 
 namespace apfd {
 
 int installAsService(std::string user, std::string password) {
-  auto service = common::ServiceControl("apfd");
+  auto service = bcl::ServiceControl("apfd");
   service.setDescription("Auto Port Forward");
   service.install(user,password);
   service.start();
@@ -12,7 +12,7 @@ int installAsService(std::string user, std::string password) {
 }
 
 int removeAsService() {
-  auto service = common::ServiceControl("apfd");
+  auto service = bcl::ServiceControl("apfd");
   service.stop();
   service.uninstall();
   return 0;

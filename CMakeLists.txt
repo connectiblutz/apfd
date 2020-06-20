@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra")
 
 add_subdirectory(apfd)
-add_subdirectory(bcLib)
+add_subdirectory(bcl)
 add_subdirectory(third_party/cJSON)
 if (WIN32)
 add_subdirectory(wsl)
