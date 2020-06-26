@@ -1,8 +1,8 @@
 [submodule "bcl"]
 	path = bcl
 	url = https://github.com/connectiblutz/bcLib
-	branch = master
+	branch = main
 [submodule "wsl"]
 	path = wsl
 	url = https://github.com/connectiblutz/wsl
-	branch = master
+	branch = main
